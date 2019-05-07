@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1 class="page-header">查看课程</h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>课程号</th>
+            <th>课程名</th>
+            <th>教师号</th>
+            <th>教师名</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for i in teacher_course_info %}
+            <tr>
+                <td>{{ i.1.courseNum }}</td>
+                <td>{{ i.1.courseName }}</td>
+                <td>{{ i.0.teacherNum }}</td>
+                <td>{{ i.0.teacherName }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+{% endblock content %}

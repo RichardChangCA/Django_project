@@ -1,0 +1,2 @@
+model_checkpoint_path: "/root/zlf_projects/pycharm_project_48/static/anti_proof_dataset/tmp/model.ckpt"
+all_model_checkpoint_paths: "/root/zlf_projects/pycharm_project_48/static/anti_proof_dataset/tmp/model.ckpt"

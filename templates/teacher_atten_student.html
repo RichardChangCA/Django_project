@@ -1,0 +1,31 @@
+{% extends 'base_teacher.html' %}
+{% block content %}
+    <h1 class="page-header">考勤管理</h1>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>考勤状态</th>
+            <th>考勤时间</th>
+            <th>学号</th>
+            <th>姓名</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in atten_info %}
+            <tr>
+                {% if i.tag == "2" %}
+                    <td style="color: grey">等待考核</td>
+                {% elif i.tag == "1" %}
+                    <td style="color: green">出勤</td>
+                {% else %}
+                    <td style="color: red">缺勤</td>
+                {% endif %}
+                <td>{{ i.attendance_time|date:"Y-m-d H:i:s" }}</td>
+                <td>{{ i.stu.studentNum }}</td>
+                <td>{{ i.stu.username }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

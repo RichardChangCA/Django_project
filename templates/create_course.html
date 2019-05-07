@@ -1,0 +1,60 @@
+{% extends 'base_teacher.html' %}
+{% block content %}
+    <h1 class="page-header">添加课程</h1>
+    <form class="form-horizontal" role="form" method="post" action="/create_course/">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="course_id" class="col-sm-2 control-label">课程号</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="course_id" id="course_id" placeholder="请输入课程号">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="course_name" class="col-sm-2 control-label">课程名</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="course_name" id="course_name" placeholder="请输入课程名">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-default">添加课程</button>
+            </div>
+        </div>
+    </form>
+    <hr>
+    <a href="/static/download_models/StudentIdName.xls">下载导入学生数据模板</a>
+    <hr>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>课程号</th>
+            <th>课程名</th>
+            <th>操作</th>
+            <th>查看学生信息</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in courses %}
+            <tr>
+                <td>{{ i.course_id.courseNum }}</td>
+                <td>{{ i.course_id.courseName }}</td>
+                <td>
+                    <form action="/student2course_connection/" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="text" name="courseNum" id="courseNum" value="{{ i.course_id.courseNum }}" style="display: none;"/>
+                        <input type="file" name="file_name" id="file_name"/>
+                        <button type="submit">导入学生数据</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="/watch_students/" method="post">
+                        {% csrf_token %}
+                        <input type="text" name="courseNum" id="courseNum" value="{{ i.course_id.courseNum }}" style="display: none;"/>
+                        <button type="submit">查看学生信息</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

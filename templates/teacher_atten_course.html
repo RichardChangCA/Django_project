@@ -1,0 +1,45 @@
+{% extends 'base_teacher.html' %}
+{% block content %}
+    <h1 class="page-header">考勤管理<a href="/teacher_manage_atten/" class="pull-right">←返回上层</a></h1>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>考勤状态</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>活体检测</th>
+            <th>学生信息</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in atten_infos %}
+            <tr>
+                {% if i.attendance_tag == "1" %}
+                    <td style="color: green">正在考勤</td>
+                {% else %}
+                    <td style="color: red">考勤结束</td>
+                {% endif %}
+                <td>{{ i.attendance_start_time|date:"Y-m-d H:i:s" }}</td>
+                <td>{{ i.attendance_end_time|date:"Y-m-d H:i:s" }}</td>
+                <td>
+                    <form action="/students_anti_proof/" method="post" target="_blank">
+                        {% csrf_token %}
+                        <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
+                               style="display: none;"/>
+                        <button type="submit">检测</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="/teacher_atten_course/" method="post" target="_blank">
+                        {% csrf_token %}
+                        <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
+                               style="display: none;"/>
+                        <button type="submit">查看</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

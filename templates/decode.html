@@ -1,0 +1,15 @@
+{% extends 'base_admin.html' %}
+{% block content %}
+    <h1 class="page-header">加密解密</h1>
+    <form action="/decode/" method="post">
+        {% csrf_token %}
+        <input type="textfield" name="decode" id="decode" value="{{ decode }}" size="30"/>原始密码
+        <br>
+        <button type="submit">↑解密/加密↓</button>
+        <br>
+        <input type="textfiled" name="code" id="code" value="{{ code }}" size="30"/>加密密码
+    </form>
+
+    <h3>功能介绍：</h3>
+    <p>此模块将用户输入的密码（原始密码）与数据库存储的密码（加密密码）进行转换</p>
+{% endblock content %}

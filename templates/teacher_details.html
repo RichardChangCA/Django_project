@@ -1,0 +1,93 @@
+{% extends 'base_teacher.html' %}
+{% block content %}
+    <h1 class="page-header">个人资料</h1>
+    <div class="row">
+        <div class="panel panel-primary">
+            <!--表单开始-->
+            <div class="panel-heading">
+                <h3 class="panel-title">个人资料</h3>
+            </div>
+            <div class="panel-body">
+                <form id="defaultForm" role="form" class="form-signin form-horizontal" action="/teacher_details/"
+                      method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="stu_num_copy" class="col-sm-4 control-label">教师号：</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" type="text" name="stu_num_copy" id="stu_num_copy"
+                                   value="{{ teacherNum }}" disabled/>
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: none">
+                        <label for="stu_num" class="col-sm-4 control-label">教师号：</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" type="text" name="stu_num" id="stu_num"
+                                   value="{{ teacherNum }}"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="username" class="col-sm-4 control-label">姓名：</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" type="text" name="username" id="username"
+                                   value="{{ teacherName }}" disabled/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="col-sm-4 control-label">密码：</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" type="text" name="password" id="password"
+                                   value="{{ password }}" disabled/>
+                        </div>
+
+                    </div>
+                    <div class="form-group" id="repassword_div" style="display: none">
+                        <label for="repassword" class="col-sm-4 control-label">确认密码：</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" type="password" name="repassword" id="repassword"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="col-sm-4 control-label">手机号码：</label>
+                        <div class="col-sm-4">
+                            <input class="form-control " type="text" name="phone" id="phone"
+                                   value="{{ phone }}" disabled/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="col-sm-4 control-label">Email:</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" type="email" name="email" id="email"
+                                   value="{{ email }}" disabled/>
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-4 col-sm-4">
+                            <button type="button" class="btn btn-lg btn-primary" id="edit" onclick="edit_func()" style="display: block">修改
+                            </button>
+                            <button type="submit" class="btn btn-lg btn-success" id="success" onclick="success_func()" style="display: none">提交
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!--表单结束-->
+    </div>
+    <script>
+        function edit_func() {
+            $("#edit").css("display", "none");
+            $("#success").css("display", "block");
+            $('#username').removeAttr("disabled");
+            $('#password').removeAttr("disabled");
+            $('#phone').removeAttr("disabled");
+            $('#email').removeAttr("disabled");
+            $("#repassword_div").css("display", "block");
+            $('#password').attr("type","password");
+        }
+        function success_func() {
+            alert("修改成功！\n\n若修改密码，请重新登录\n若修改其他信息，则返回主页")
+        }
+    </script>
+    <script src="/static/js/change_teacher_info.js"></script>
+{% endblock content %}

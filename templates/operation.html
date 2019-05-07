@@ -1,0 +1,106 @@
+{% extends 'base_admin.html' %}
+{% block content %}
+
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>功能</th>
+            <th>下载</th>
+            <th>操作</th>
+            <th>备注</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>提交学生用户数据</td>
+            <td><a href="/static/download_models/UserInfo.xls">下载学生用户数据模板</a></td>
+            <td>
+                <form action="/add_UserInfo_2db/" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="file_name" id="file_name"/>
+                    <button type="submit">提交</button>
+                </form>
+            </td>
+            <td>暂无</td>
+        </tr>
+        <tr>
+            <td>提交学生用户人脸</td>
+            <td><a href=""></a></td>
+            <td>
+                <form action="/add_UserInfo_img_2db/" method="post">
+                    {% csrf_token %}
+                    <button type="submit">提交</button>
+                </form>
+            </td>
+            <td>假设所有学生上传人脸</td>
+        </tr>
+        <tr>
+            <td>创建教师用户数据</td>
+            <td><a href="/static/download_models/TeacherInfo.xls">下载教师用户数据模板</a></td>
+            <td>
+                <form action="/create_two_teachers/" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="file_name" id="file_name"/>
+                    <button type="submit">提交</button>
+                </form>
+            </td>
+            <td>暂无</td>
+        </tr>
+        <tr>
+            <td>提交考勤演示数据</td>
+            <td><a href=""></a></td>
+            <td>
+                <form action="/upload_atten_demo/" method="post">
+                    {% csrf_token %}
+                    <lable id="teacher_lable" name="teacher_lable" for="teacher_id">输入教师号</lable>
+                    <br>
+                    <input type="text" id="teacher_id" name="teacher_id" placeholder="输入教师号">
+                    <br>
+                    <lable id="course_lable" name="course_lable" for="course_id">输入课程号</lable>
+                    <br>
+                    <input type="text" id="course_id" name="course_id" placeholder="输入课程号">
+                    <br>
+                    <button type="submit">提交</button>
+                </form>
+            </td>
+            <td>假设所有学生完成打卡</td>
+        </tr>
+
+        <tr>
+            <td>预处理防伪图片集</td>
+            <td><a href=""></a></td>
+            <td>
+                <form action="/anti_proof_dataset/" method="post">
+                    {% csrf_token %}
+                    <button type="submit">处理</button>
+                </form>
+            </td>
+            <td>暂无</td>
+        </tr>
+
+        <tr>
+            <td>照片防伪神经训练</td>
+            <td><a href=""></a></td>
+            <td>
+{#                action="/anti_proof_train/"#}
+{#                http://39.98.169.35:6006/#scalars#}
+                <form action="/anti_proof_train/" method="post">
+                    {% csrf_token %}
+                    <button type="submit" onclick="tensorboard_open()">处理</button>
+                </form>
+            </td>
+            <td>暂无</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h3 style="color: red">{{ success }}</h3>
+
+    <script language="JavaScript" type="text/javascript">
+    function tensorboard_open(){
+        window.open("http://39.98.169.35:6006/#scalars");
+    }
+    </script>
+
+{% endblock content %}

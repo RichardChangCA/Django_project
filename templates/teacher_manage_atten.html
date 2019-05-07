@@ -1,0 +1,29 @@
+{% extends 'base_teacher.html' %}
+{% block content %}
+    <h1 class="page-header">考勤管理</h1>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>课程号</th>
+            <th>课程名</th>
+            <th>考勤信息</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in courses %}
+            <tr>
+                <td>{{ i.course_id.courseNum }}</td>
+                <td>{{ i.course_id.courseName }}</td>
+                <td>
+                    <form action="/teacher_manage_atten/" method="post">
+                        {% csrf_token %}
+                        <input type="text" name="courseNum" id="courseNum" value="{{ i.course_id.courseNum }}" style="display: none;"/>
+                        <button type="submit">查看</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

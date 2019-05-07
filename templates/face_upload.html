@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+    <script>
+        // initialize with defaults
+        $("#input-id").fileinput();
+
+        // with plugin options
+        $("#input-id").fileinput({'showUpload': false, 'previewFileType': 'any'});
+    </script>
+    <h1 class="page-header">人脸上传---支持<b style="color: red">.jpg/.png/.bmp</b>格式---请一次性上传<b style="color: red">5</b>张人脸</h1>
+    <form action="/face_upload/" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input id="input-id" type="file" class="file" name="input-id" data-preview-file-type="text" multiple/>
+{#        <input type="file" name="input-id" id="input-id"/>#}
+{#    <button type="submit">提交</button>#}
+    </form>
+    <h1 style="color: red">{{ img_info }}</h1>
+{% endblock content %}

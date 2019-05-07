@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1 class="page-header">管理页面</h1>
+
+    <div class="row">
+        <div class="col-sm-6 col-md-3">
+            <div class="thumbnail">
+                <img src="/static/uploads/slide1.jpg"
+                     alt="通用的占位符缩略图">
+                <div class="caption">
+                    <h3>name</h3>
+                    <p>个人简介。。。。。。。。。。。</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="thumbnail">
+                <img src="/static/uploads/slide1.jpg"
+                     alt="通用的占位符缩略图">
+                <div class="caption">
+                    <h3>name</h3>
+                    <p>个人简介。。。。。。。。。。。</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="thumbnail">
+                <img src="/static/uploads/slide1.jpg"
+                     alt="通用的占位符缩略图">
+                <div class="caption">
+                    <h3>name</h3>
+                    <p>个人简介。。。。。。。。。。。</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="thumbnail">
+                <img src="/static/uploads/slide1.jpg"
+                     alt="通用的占位符缩略图">
+                <div class="caption">
+                    <h3>name</h3>
+                    <p>个人简介。。。。。。。。。。。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.bootcss.com/echarts/4.0.4/echarts-en.common.min.js"></script>
+    <div class="row">
+        <div class="col-md-12" id="mainchart" style="height:400px ">
+        </div>
+
+    </div>
+
+    <!--面板开始-->
+    <div class="panel panel-primary">
+        <div class="panel-heading">数据统计</div>
+        <div class="panel-body">
+            <!--数据表开始-->
+            <div class="row">
+
+                <div class="col-lg-4">
+                    <div class="input-group ">
+                        <input type="text" class="form-control" placeholder="Search for...">
+                        <span class="input-group-btn">
+                                <button class="btn btn-default" type="button">Go!</button>
+                            </span>
+                    </div><!-- /input-group -->
+                </div>
+
+            </div>
+            <hr>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>学号</th>
+                        <th>姓名</th>
+                        <th>班级</th>
+                        <th>总时长（h）</th>
+                        <th>请假时长（d）</th>
+
+                    </tr>
+                    </thead>
+                    <tbody id="time_detail">
+                    {% for info in info_list %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ info.stu }}</td>
+                            <td>{{ info.stu__username }}</td>
+                            <td>{{ info.stu__cid__name }}</td>
+
+                            <td>{{ info.total_time|floatformat:'1' }}</td>
+                            <td>{{ info.leave_count|floatformat }}</td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+            <!--数据表结束-->
+            <script>
+                $(document).ready(function () {
+                    {#数据展示#}
+                    (function () {
+                        $.post('/total/', {"flag": "ok"}, function (ret) {
+                            data = $.parseJSON(ret)
+                            console.log(data)
+                            $('#time_detail').empty()
+                            {#姓名数组#}
+                            var names=[];
+                            {#时间数组#}
+                            var times=[];
+                            for (var i = 0; i < data.length; i++) {
+                                s = "<tr><td>" + i + "</td><td>" + data[i].stu + "</td><td>" + data[i].stu__username + "</td><td>" +
+                                    data[i].stu__cid__name + "</td><td>" +
+                                    data[i].total_time + "</td><td>" +
+                                    Number(data[i].leave_count) + "</td></tr>";
+                                $('#time_detail').append(s)
+                                names.push(data[i].stu__username)
+                                times.push(data[i].total_time)
+
+                            }
+                            // 基于准备好的dom，初始化echarts实例
+                            var myChart = echarts.init(document.getElementById('mainchart'));
+
+                            // 指定图表的配置项和数据
+                            var option = {
+                                title: {
+                                    text: '签到数据统计'
+                                },
+                                tooltip: {},
+                                legend: {
+                                    data: ['签到统计']
+                                },
+                                xAxis: {
+                                    data: names
+                                },
+                                yAxis: {},
+                                series: [{
+                                    name: '时间',
+                                    type: 'bar',
+                                    data: times
+                                }]
+                            };
+
+                            // 使用刚指定的配置项和数据显示图表。
+                            myChart.setOption(option);
+
+                        })
+                    })()
+                })
+                $.ajaxSetup({
+                    data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+                });
+            </script>
+            <!--面板底部开始-->
+            <div class="panel-footer">
+                <!--分页-->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pull-right">
+                        <li>
+                            <a href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                        <li><a href="#">5</a></li>
+                        <li>
+                            <a href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block sidebar %}
+    1
+{% endblock sidebar %}
