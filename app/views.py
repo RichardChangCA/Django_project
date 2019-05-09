@@ -11,9 +11,9 @@ from .models import UserInfo, TeacherInfo, CourseInfo, Teacher2Course, choose_co
 # django自带加密解密库
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import F, Q, Avg, Sum, Max, Min, Count
-import json
 import hashlib
 import json
+import operator
 import datetime
 import smtplib
 from email.mime.text import MIMEText
@@ -49,6 +49,27 @@ from datetime import datetime
 
 import subprocess
 import paramiko
+
+import sys
+import os
+import cv2
+import dlib
+import argparse
+
+from PIL import Image
+import random
+import os
+import numpy as np
+
+import tensorflow as tf
+import cv2
+import numpy as np
+import os
+import random
+import sys
+from sklearn.model_selection import train_test_split
+
+from datetime import datetime
 
 
 # Create your views here.
@@ -1732,7 +1753,7 @@ def anti_proof_cnnLayer(x, keep_prob_5, keep_prob_75, W1, b1, W2, b2, W3, b3, Wf
     return out
 
 
-def is_my_face(image, sess, predict, x, keep_prob_5, keep_prob_75):
+def is_true_face(image, sess, predict, x, keep_prob_5, keep_prob_75):
     res = sess.run(predict, feed_dict={x: [image / 255.0], keep_prob_5: 1.0, keep_prob_75: 1.0})
     print("res", res)
     return res[0]  # 0假1真
@@ -1766,7 +1787,7 @@ def change_img2face(stu_img):
 def students_anti_proof(request):
     if request.method == 'POST':
         attendance_id = request.POST.get("attendance_id")
-        atten_info = attendance.objects.filter(att_id=attendance_id)
+        atten_info = attendance.objects.filter(att=attendance_id)
         size = 64
         v1 = tf.get_variable("v1", shape=[3])
         W1 = tf.get_variable("W1", shape=[3, 3, 3, 32])
@@ -1800,7 +1821,7 @@ def students_anti_proof(request):
 
             saver = tf.train.Saver()  # 将训练后的变量保存
 
-            # print('Is this my face? %s' % is_my_face(face))
+            # print('Is this my face? %s' % is_true_face(face))
             BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             media_path = os.path.join(BASE_DIR, "static")
             media_path2 = os.path.join(media_path, "anti_proof_dataset")
@@ -1811,15 +1832,15 @@ def students_anti_proof(request):
             with tf.Session() as sess:
                 saver.restore(sess, tmp_path + "/model.ckpt")
                 print("v1 : %s" % v1.eval())
-                anti_proof_tag = is_my_face(face, sess, predict, x, keep_prob_5, keep_prob_75)
+                anti_proof_tag = is_true_face(face, sess, predict, x, keep_prob_5, keep_prob_75)
                 print('is true face?', anti_proof_tag)
                 if (anti_proof_tag == 0):
                     # print("假人")
                     face = change_img2face(stu_img2)
-                    anti_proof_tag = is_my_face(face, sess, predict, x, keep_prob_5, keep_prob_75)
+                    anti_proof_tag = is_true_face(face, sess, predict, x, keep_prob_5, keep_prob_75)
                     if (anti_proof_tag == 0):
                         face = change_img2face(stu_img3)
-                        anti_proof_tag = is_my_face(face, sess, predict, x, keep_prob_5, keep_prob_75)
+                        anti_proof_tag = is_true_face(face, sess, predict, x, keep_prob_5, keep_prob_75)
                         if (anti_proof_tag == 0):
                             print("假人")
                         else:
@@ -1836,11 +1857,621 @@ def students_anti_proof(request):
                 # num = input("number:")
                 # my_face = cv2.imread("C:/Users/46507/PycharmProjects/LearnTF/my_faces/" + num + ".bmp")
                 # # 换目录使用../other_faces/1
-                # print('my face? %s' % is_my_face(my_face))
+                # print('my face? %s' % is_true_face(my_face))
                 #
                 # cv2.rectangle(img, (x2, x1), (y2, y1), (255, 0, 0), 3)
                 # cv2.imshow('face', face)
-#这里只能假设都为真
+        # 这里只能假设都为真
         return HttpResponse("成功")
+    else:
+        return redirect("/teacher_manage_atten/")
+
+
+# 读取文件内的所有,迭代，将生成的图片与原图片放在同一文件夹下
+
+def read_file_all(data_dir_path):
+    for f in os.listdir(data_dir_path):
+        print("data_dir_path:", data_dir_path)
+        data_file_path = os.path.join(data_dir_path, f)
+        if os.path.isfile(data_file_path):
+            image_rotate(data_file_path, data_dir_path)
+
+            # print(collected)
+        else:
+            read_file_all(data_file_path)
+            # 文件夹下套文件夹情况
+
+
+def read_file_all_again(data_dir_path):
+    for f in os.listdir(data_dir_path):
+        print("data_dir_path:", data_dir_path)
+        data_file_path = os.path.join(data_dir_path, f)
+        if os.path.isfile(data_file_path):
+            relight(data_file_path, data_dir_path, random.uniform(0.5, 1.5), random.randint(-50, 50))
+        else:
+            read_file_all_again(data_file_path)
+    # 文件夹下套文件夹情况
+
+
+# 改变图片的亮度与对比度
+def relight(image_path, save_dir, light=1, bias=0):
+    img = Image.open(image_path)
+    img = np.array(img)
+    w = img.shape[1]
+    h = img.shape[0]
+    # image = []
+    for i in range(w):
+        for j in range(h):
+            for c in range(3):  # 三通道
+                tmp = int(img[j, i, c] * light + bias)
+                if tmp > 255:
+                    tmp = 255
+                elif tmp < 0:
+                    tmp = 0
+                img[j, i, c] = tmp
+    img = Image.fromarray(img)
+    save_path = save_dir + "/" + random_name() + '.bmp'
+    img.save(save_path)
+    print("save_path:", save_path)
+
+
+def image_rotate(image_path, save_dir):
+    # 读取图像
+    im = Image.open(image_path)
+    im = im.transpose(Image.FLIP_LEFT_RIGHT)  # 左右互换
+    save_path = save_dir + "/" + random_name() + '.bmp'
+    im.save(save_path)
+    print("save_path:", save_path)
+
+
+# img=np.array(Image.open(image_path))
+# #随机生成100个椒盐
+# rows,cols,dims=img.shape
+# for i in range(100):
+# x=np.random.randint(0,rows)
+# y=np.random.randint(0,cols)
+# img[x,y,:]=255
+# img.flags.writeable = True  # 将数组改为读写模式
+# dst=Image.fromarray(np.uint8(img))
+# save_path = save_dir + "/" + random_name() + '.bmp'
+# dst.save(save_path)
+# print("save_path:",save_path)
+def random_name():
+    # 随机数，用来随机取名字
+    a_list = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    name = random.sample(a_list, 5)
+    file_name = "".join(name)
+    return file_name
+
+
+def readData(path, imgs, labs):
+    dict_match = {}
+    num = 0
+    for file_dir_name in os.listdir(path):
+        next_files = path + '/' + file_dir_name  # 左斜杠linux与windows都兼容
+
+        dict_match.setdefault(num, "0")
+        print("dict_match", dict_match)
+        dict_match[num] = file_dir_name
+        print("dict_match", dict_match)
+
+        for filename in os.listdir(next_files):
+            if filename.endswith('.bmp') or filename.endswith('.BMP') or filename.endswith('.PNG') or filename.endswith(
+                    '.png') or filename.endswith('.JPG') or filename.endswith('.jpg'):
+                # 三种图像格式,bmp/png/jpg
+                filename = path + '/' + file_dir_name + '/' + filename
+
+                img = cv2.imread(filename)
+
+                imgs.append(img)
+                # labs.append(file_dir_name)
+                labs.append(num)
+        num += 1
+    sorted_x = sorted(dict_match.items(), key=operator.itemgetter(0))
+
+    dict_match_json = {
+        'version': "1.0",
+        'results': sorted_x,
+        'explain': {
+            'used': True,
+            'details': "this is for dict_match josn when you train",
+        }
+    }
+    json_str = json.dumps(dict_match_json, indent=4)
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    media_path = os.path.join(BASE_DIR, "static")
+    tmp_dir = os.path.join(media_path, "tmp")
+    json_path = tmp_dir + '/dict_match.json'
+    with open(json_path, 'w') as json_file:
+        json_file.write(json_str)
+    return imgs, labs
+
+
+# face_recognition_start
+def face_recognition_weightVariable(shape):
+    init = tf.random_normal(shape, stddev=0.01)
+    return tf.Variable(init)
+
+
+def face_recognition_biasVariable(shape):
+    init = tf.random_normal(shape)
+    return tf.Variable(init)
+
+
+def face_recognition_conv2d(x, W):
+    return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
+
+
+def face_recognition_maxPool(x):
+    return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+
+
+def face_recognition_dropout(x, keep):
+    return tf.nn.dropout(x, keep)
+
+
+def face_recognition_cnnLayer(x, faces_number, keep_prob_5, keep_prob_75):
+    # 第一层
+    # W1 = weightVariable([3,3,3,32]) # 卷积核大小(3,3)， 输入通道(3)， 输出通道(32)
+    W1 = tf.get_variable("W1", shape=[3, 3, 3, 32], initializer=tf.random_normal_initializer(stddev=0.01))
+    # b1 = biasVariable([32])
+    b1 = tf.get_variable("b1", shape=[32], initializer=tf.random_normal_initializer)
+    # 卷积
+    conv1 = tf.nn.relu(face_recognition_conv2d(x, W1) + b1)
+    # 池化
+    pool1 = face_recognition_maxPool(conv1)
+    # 减少过拟合，随机让某些权重不更新
+    drop1 = face_recognition_dropout(pool1, keep_prob_5)
+
+    # 第二层
+    # W2 = weightVariable([3,3,32,64])
+    W2 = tf.get_variable("W2", shape=[3, 3, 32, 64], initializer=tf.random_normal_initializer(stddev=0.01))
+    # b2 = biasVariable([64])
+    b2 = tf.get_variable("b2", shape=[64], initializer=tf.random_normal_initializer)
+    conv2 = tf.nn.relu(face_recognition_conv2d(drop1, W2) + b2)
+    pool2 = face_recognition_maxPool(conv2)
+    drop2 = face_recognition_dropout(pool2, keep_prob_5)
+
+    # 第三层
+    # W3 = weightVariable([3,3,64,64])
+    W3 = tf.get_variable("W3", shape=[3, 3, 64, 64], initializer=tf.random_normal_initializer(stddev=0.01))
+    # b3 = biasVariable([64])
+    b3 = tf.get_variable("b3", shape=[64], initializer=tf.random_normal_initializer)
+    conv3 = tf.nn.relu(face_recognition_conv2d(drop2, W3) + b3)
+    pool3 = face_recognition_maxPool(conv3)
+    drop3 = face_recognition_dropout(pool3, keep_prob_5)
+
+    # 全连接层
+    # Wf = weightVariable([8*8*64, 512])
+    Wf = tf.get_variable("Wf", shape=[8 * 8 * 64, 512], initializer=tf.random_normal_initializer(stddev=0.01))
+    # bf = biasVariable([512])
+    bf = tf.get_variable("bf", shape=[512], initializer=tf.random_normal_initializer)
+    drop3_flat = tf.reshape(drop3, [-1, 8 * 8 * 64])
+    dense = tf.nn.relu(tf.matmul(drop3_flat, Wf) + bf)
+    dropf = face_recognition_dropout(dense, keep_prob_75)
+
+    # 输出层
+    # Wout = weightVariable([512, 2])
+    Wout = tf.get_variable("Wout", shape=[512, faces_number], initializer=tf.random_normal_initializer(stddev=0.01))
+    # bout = biasVariable([2])
+    bout = tf.get_variable("bout", shape=[faces_number], initializer=tf.random_normal_initializer)
+    # out = tf.matmul(dropf, Wout) + bout
+    out = tf.add(tf.matmul(dropf, Wout), bout)
+    return out
+
+
+# 输出层个数根据标签决定
+def face_recognition_cnnTrain(train_x, train_y, test_x, test_y, TIMESTAMP, num_batch, x, y_, keep_prob_5, keep_prob_75,
+                              inc_v1,
+                              batch_size, faces_number):
+    tag = 0  # 结束标志
+    out = face_recognition_cnnLayer(x, faces_number, keep_prob_5, keep_prob_75)
+
+    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=out, labels=y_))
+    # learning rate = 0.01
+    train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
+    # 比较标签是否相等，再求的所有数的平均值，tf.cast(强制转换类型)
+    # accuracy = tf.reduce_mean(tf.cast(tf.equal(out, y_), tf.float32))
+    accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(out, 1), tf.argmax(y_, 1)), tf.float32))
+    # 将loss与accuracy保存以供tensorboard使用
+    tf.summary.scalar('loss', cross_entropy)
+    tf.summary.scalar('accuracy', accuracy)
+    merged_summary_op = tf.summary.merge_all()
+    # 数据保存器的初始化
+    saver = tf.train.Saver()
+
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    media_path = os.path.join(BASE_DIR, "static")
+    tmp_dir = os.path.join(media_path, "tmp")
+    if not os.path.exists(tmp_dir):
+        os.mkdir(tmp_dir)
+    train_dir = os.path.join(tmp_dir, "train")
+    test_dir = os.path.join(tmp_dir, "test")
+
+    with tf.Session() as sess:
+
+        sess.run(tf.global_variables_initializer())
+
+        inc_v1.op.run()  # 测试参数传递
+
+        train_writer = tf.summary.FileWriter(train_dir + TIMESTAMP, graph=tf.get_default_graph())
+        test_writer = tf.summary.FileWriter(test_dir + TIMESTAMP, graph=tf.get_default_graph())
+
+        for n in range(5000):
+            for i in range(num_batch):
+                batch_x = train_x[i * batch_size: (i + 1) * batch_size]
+                batch_y = train_y[i * batch_size: (i + 1) * batch_size]
+                # 开始训练数据，同时训练三个变量，返回三个数据
+                _, loss, train_result = sess.run([train_step, cross_entropy, merged_summary_op],
+                                                 feed_dict={x: batch_x, y_: batch_y, keep_prob_5: 0.5,
+                                                            keep_prob_75: 0.75})
+                train_writer.add_summary(train_result, n * num_batch + i)
+                # 打印损失
+                print(n * num_batch + i, "loss", loss)
+
+                # if (n*num_batch+i) % 100 == 0:
+                #     # 获取测试数据的准确率
+                #     acc = accuracy.eval({x:test_x, y_:test_y, keep_prob_5:1.0, keep_prob_75:1.0})
+                #     print(n*num_batch+i,"accuracy", acc)
+                #     # 准确率大于0.98时保存并退出
+                #     if acc > 0.98 and n > 2:
+                #         saver.save(sess, './train_faces.model', global_step=n*num_batch+i)
+                #         sys.exit(0)
+
+                # n1 = n
+                # num_batch1 = num_batch
+                # i1 = i
+                acc, test_result = sess.run([accuracy, merged_summary_op],
+                                            feed_dict={x: test_x, y_: test_y, keep_prob_5: 1.0, keep_prob_75: 1.0})
+                # acc = accuracy.eval({x: test_x, y_: test_y, keep_prob_5: 1.0, keep_prob_75: 1.0})
+                test_writer.add_summary(test_result, n * num_batch + i)
+                # saver.save(sess, './train_faces.model', global_step=n1 * num_batch1 + i1)
+                print(n * num_batch + i, 'accuracy', acc)
+                # if acc > 0.94:
+                if acc > 0.76:
+                    saver.save(sess, tmp_dir + '/model.ckpt')
+                    # sys.exit(0)
+                    tag = 1
+                    break
+            if (tag == 1):
+                break
+
+        saver.save(sess, tmp_dir + '/model.ckpt')
+
+
+# face_recognition_end
+
+@is_teacher_login
+def train(request):
+    if request.method == 'POST':
+        courseNum = request.POST.get("courseNum")
+        email = request.COOKIES["qwer"]
+        teacher_model = TeacherInfo.objects.get(email=email)
+        course_model = CourseInfo.objects.get(courseNum=courseNum)
+        choose_course_model = choose_course.objects.filter(cour=course_model, teac=teacher_model)
+
+        # 图片预处理，裁剪
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        media_path = os.path.join(BASE_DIR, "static")
+        input_dir = os.path.join(media_path, "train_set")
+        output_dir = os.path.join(media_path, "processed_train_set")
+
+        if os.path.exists(output_dir):
+            output_dir_list = os.listdir(output_dir)
+            for file in output_dir_list:
+                file_next_path = os.path.join(output_dir, file)
+                file_next_path_list = os.listdir(file_next_path)
+                for file_next in file_next_path_list:
+                    file_final = os.path.join(file_next_path, file_next)
+                    print("file_final", file_final)
+                    os.remove(file_final)
+                os.removedirs(file_next_path)
+            # os.removedirs(output_dir)  # 里面文件夹都为空时才能删除成功
+        os.mkdir(output_dir)
+        size = 64
+        # 使用dlib自带的frontal_face_detector作为我们的特征提取器
+        detector = dlib.get_frontal_face_detector()
+
+        dirnames = os.listdir(input_dir)
+        # print(dirnames)
+        # for (path, dirnames, filenames) in os.walk(input_dir):
+        #     print("path", path)
+        #     print("dirnames", dirnames)
+        for dir in dirnames:
+
+            new_path = output_dir + "/" + dir
+            isExists = os.path.exists(new_path)
+            # 判断结果
+            if not isExists:
+                # 如果不存在则创建目录
+                # 创建目录操作函数
+                os.makedirs(new_path)
+
+                print(new_path + ' 创建成功')
+            else:
+                # 如果目录存在则不创建，并提示目录已存在
+                print(new_path + ' 目录已存在')
+                continue
+
+            next_dir = input_dir + "/" + dir
+            for (next_path, next_dirnames, next_filenames) in os.walk(next_dir):
+                print("next_filenames", next_filenames)
+                for filename in next_filenames:
+                    if filename.endswith('.bmp') or filename.endswith('.BMP') or filename.endswith(
+                            '.PNG') or filename.endswith('.png') or filename.endswith('.JPG') or filename.endswith(
+                        '.jpg'):
+                        picture_name = os.path.basename(filename)  # 获取当前文件名
+                        print('Being processed picture %s' % picture_name)
+                        img_path = next_path + '/' + filename
+                        # 从文件读取图片
+                        img = cv2.imread(img_path)
+                        # 转为灰度图片
+                        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                        # 使用detector进行人脸检测 dets为返回的结果
+                        dets = detector(gray_img, 1)
+
+                        # 使用enumerate 函数遍历序列中的元素以及它们的下标
+                        # 下标i即为人脸序号
+                        # left：人脸左边距离图片左边界的距离 ；right：人脸右边距离图片左边界的距离
+                        # top：人脸上边距离图片上边界的距离 ；bottom：人脸下边距离图片上边界的距离
+                        for i, d in enumerate(dets):
+                            x1 = d.top() if d.top() > 0 else 0
+                            y1 = d.bottom() if d.bottom() > 0 else 0
+                            x2 = d.left() if d.left() > 0 else 0
+                            y2 = d.right() if d.right() > 0 else 0
+                            # img[y:y+h,x:x+w]
+                            face = img[x1:y1, x2:y2]
+                            # 调整图片的尺寸
+                            face = cv2.resize(face, (size, size))
+                            # cv2.imshow('image', face)
+                            # 保存图片
+                            cv2.imwrite(new_path + '/' + picture_name, face)
+                    # key = cv2.waitKey(30) & 0xff
+                    # if key == 27:
+                    # sys.exit(0)
+        print("[INFO]end of processing - cut images")
+
+        # 图片预处理，扩数据集
+        data_dir_path = output_dir  # 读取/保存的文件路径
+        read_file_all(data_dir_path)
+        read_file_all_again(data_dir_path)
+
+        print("[INFO]end of processing - enlarge images")
+
+        # 开始训练
+        TIMESTAMP = "{0:%Y-%m-%dT%H-%M-%S/}".format(datetime.now())
+
+        # my_faces_path = './my_faces'
+        # # other_faces_path = './other_faces'
+        face_path = output_dir  # 数据集路径
+        size = 64
+
+        imgs = []
+        labs = []
+
+        # readData(my_faces_path)
+        # readData(other_faces_path)
+        imgs, labs = readData(face_path, imgs, labs)
+
+        # 将图片数据与标签转换成数组
+        imgs = np.array(imgs)
+        # labs = np.array([[0, 1] if lab == my_faces_path else [1, 0] for lab in labs])
+        labs_mid = labs
+        labs_set = labs
+        image_numbers = len(labs)
+        faces_number = len(set(labs_set))
+        labs = np.zeros((image_numbers, faces_number), dtype=np.int)
+        labs_index = 0
+        for x in labs_mid:
+            labs[labs_index][int(x)] = 1
+            labs_index = labs_index + 1
+        # 随机划分测试集与训练集
+        train_x, test_x, train_y, test_y = train_test_split(imgs, labs, test_size=0.05,
+                                                            random_state=random.randint(0, 100))
+        # 参数：图片数据的总数，图片的高、宽、通道
+        train_x = train_x.reshape(train_x.shape[0], size, size, 3)
+        test_x = test_x.reshape(test_x.shape[0], size, size, 3)
+        # 将数据转换成小于1的数
+        train_x = train_x.astype('float32') / 255.0
+        test_x = test_x.astype('float32') / 255.0
+
+        print('train size:%s, test size:%s' % (len(train_x), len(test_x)))
+        # 图片块，每次取100张图片
+        batch_size = 100
+        num_batch = len(train_x) // batch_size
+
+        x = tf.placeholder(tf.float32, [None, size, size, 3])
+        y_ = tf.placeholder(tf.float32, [None, faces_number])
+        # 这里也是根据识别人脸个数
+        keep_prob_5 = tf.placeholder(tf.float32)
+        keep_prob_75 = tf.placeholder(tf.float32)
+
+        v1 = tf.get_variable("v1", shape=[3], initializer=tf.zeros_initializer)  # 测试参数传递
+        inc_v1 = v1.assign(v1 + 1)
+
+        face_recognition_cnnTrain(train_x, train_y, test_x, test_y, TIMESTAMP, num_batch, x, y_, keep_prob_5,
+                                  keep_prob_75, inc_v1,
+                                  batch_size,
+                                  faces_number)
+        # for row in choose_course_model:
+        #     # row.stu
+
+        return HttpResponse("训练成功")
+    else:
+        return redirect("/create_course/")
+
+
+def getPaddingSize(img):
+    h, w, _ = img.shape
+    top, bottom, left, right = (0, 0, 0, 0)
+    longest = max(h, w)
+
+    if w < longest:
+        tmp = longest - w
+        # //表示整除符号
+        left = tmp // 2
+        right = tmp - left
+    elif h < longest:
+        tmp = longest - h
+        top = tmp // 2
+        bottom = tmp - top
+    else:
+        pass
+    return top, bottom, left, right
+
+
+def student_recognition_cnnLayer(x, W1, b1, keep_prob_5, W2, b2, W3, b3, keep_prob_75, Wf, bf, Wout, bout):
+    # 第一层
+    # W1 = weightVariable([3, 3, 3, 32])  # 卷积核大小(3,3)， 输入通道(3)， 输出通道(32)
+    # b1 = biasVariable([32])
+
+    # 卷积
+    conv1 = tf.nn.relu(conv2d(x, W1) + b1)
+    # 池化
+    pool1 = maxPool(conv1)
+    # 减少过拟合，随机让某些权重不更新
+    drop1 = dropout(pool1, keep_prob_5)
+
+    # 第二层
+    # W2 = weightVariable([3, 3, 32, 64])
+    # b2 = biasVariable([64])
+
+    conv2 = tf.nn.relu(conv2d(drop1, W2) + b2)
+    pool2 = maxPool(conv2)
+    drop2 = dropout(pool2, keep_prob_5)
+
+    # 第三层
+    # W3 = weightVariable([3, 3, 64, 64])
+    # b3 = biasVariable([64])
+
+    conv3 = tf.nn.relu(conv2d(drop2, W3) + b3)
+    pool3 = maxPool(conv3)
+    drop3 = dropout(pool3, keep_prob_5)
+
+    # 全连接层
+    # Wf = weightVariable([8 * 16 * 32, 512])
+    # bf = biasVariable([512])
+
+    drop3_flat = tf.reshape(drop3, [-1, 8 * 16 * 32])  # 变成8 * 16 * 32列，-1代表行数不知道
+    dense = tf.nn.relu(tf.matmul(drop3_flat, Wf) + bf)
+    dropf = dropout(dense, keep_prob_75)
+
+    # 输出层
+    # Wout = weightVariable([512, 2])
+    # bout = biasVariable([2])
+
+    out = tf.add(tf.matmul(dropf, Wout), bout)
+    return out
+
+
+def whose_face(image, sess, predict, x, keep_prob_5, keep_prob_75):
+    res = sess.run(predict, feed_dict={x: [image / 255.0], keep_prob_5: 1.0, keep_prob_75: 1.0})
+    print("res", res)
+    return res[0]
+
+
+@is_teacher_login
+def face_recognition_students(request):
+    if request.method == 'POST':
+        attendance_id = request.POST.get("attendance_id")
+        atten_info = attendance.objects.filter(att=attendance_id)
+
+        size = 64
+
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        media_path = os.path.join(BASE_DIR, "static")
+        tmp_dir = os.path.join(media_path, "tmp")
+        json_path = tmp_dir + '/dict_match.json'
+
+        with open(json_path, 'r') as load_f:
+            load_dict = json.load(load_f)
+
+        students_number = len(load_dict["results"])
+
+        match_list = load_dict["results"]
+
+        x = tf.placeholder(tf.float32, [None, size, size, 3])
+        y_ = tf.placeholder(tf.float32, [None, students_number])
+
+        keep_prob_5 = tf.placeholder(tf.float32)  # dropout
+        keep_prob_75 = tf.placeholder(tf.float32)
+
+        v1 = tf.get_variable("v1", shape=[3])
+
+        W1 = tf.get_variable("W1", shape=[3, 3, 3, 32])
+        b1 = tf.get_variable("b1", shape=[32])
+        W2 = tf.get_variable("W2", shape=[3, 3, 32, 64])
+        b2 = tf.get_variable("b2", shape=[64])
+        W3 = tf.get_variable("W3", shape=[3, 3, 64, 64])
+        b3 = tf.get_variable("b3", shape=[64])
+        Wf = tf.get_variable("Wf", shape=[8 * 8 * 64, 512])
+        bf = tf.get_variable("bf", shape=[512])
+        Wout = tf.get_variable("Wout", shape=[512, students_number])
+        bout = tf.get_variable("bout", shape=[students_number])
+
+        output = student_recognition_cnnLayer(x, W1, b1, keep_prob_5, W2, b2, W3, b3, keep_prob_75, Wf, bf, Wout, bout)
+        predict = tf.argmax(output, 1)  # 将output中向量行找最大索引
+
+        saver = tf.train.Saver()  # 将训练后的变量保存
+
+        with tf.Session() as sess:
+            for row in atten_info:
+                stu_face = change_img2face(row.img1)
+                saver.restore(sess, tmp_dir + "/model.ckpt")
+                print("v1 : %s" % v1.eval())
+                which_one = whose_face(stu_face, sess, predict, x, keep_prob_5, keep_prob_75)
+                print('Whose face? %s' % which_one)
+
+                end_tag = 0
+                for num_list in match_list:
+                    if (num_list[0] == which_one):
+                        if (num_list[1] == row.stu.studentNum):
+                            attendance.objects.filter(stu=row.stu, att=row.att).update(tag=1)
+                            print("出勤")
+                            end_tag = 1
+                        else:
+                            stu_face = change_img2face(row.img2)
+                            saver.restore(sess, tmp_dir + "/model.ckpt")
+                            print("v1 : %s" % v1.eval())
+                            which_one = whose_face(stu_face, sess, predict, x, keep_prob_5, keep_prob_75)
+                            print('Whose face? %s' % which_one)
+                            for num_list in match_list:
+                                if (num_list[0] == which_one):
+                                    if (num_list[1] == row.stu.studentNum):
+                                        attendance.objects.filter(stu=row.stu, att=row.att).update(tag=1)
+                                        print("出勤")
+                                        end_tag = 1
+                                    else:
+                                        stu_face = change_img2face(row.img3)
+                                        saver.restore(sess, tmp_dir + "/model.ckpt")
+                                        print("v1 : %s" % v1.eval())
+                                        which_one = whose_face(stu_face, sess, predict, x, keep_prob_5, keep_prob_75)
+                                        print('Whose face? %s' % which_one)
+                                        for num_list in match_list:
+                                            if (num_list[0] == which_one):
+                                                if (num_list[1] == row.stu.studentNum):
+                                                    attendance.objects.filter(stu=row.stu, att=row.att).update(tag=1)
+                                                    print("出勤")
+                                                    end_tag = 1
+                                                else:
+                                                    attendance.objects.filter(stu=row.stu, att=row.att).update(tag=0)
+                                                    print("缺勤")
+                                                    end_tag = 1
+                                            else:
+                                                continue
+
+                                            if (end_tag == 1):
+                                                break
+                                else:
+                                    continue
+                                if (end_tag == 1):
+                                    break
+
+                    else:
+                        continue
+                    if (end_tag == 1):
+                        break
+
+        return HttpResponse("学生考勤成功")
     else:
         return redirect("/teacher_manage_atten/")

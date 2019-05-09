@@ -1,0 +1,29 @@
+{
+    "version": "1.0",
+    "results": [
+        [
+            0,
+            "wowow/xxx/ssss.jpg"
+        ],
+        [
+            1,
+            "wowow/xxx/ssss.jpg"
+        ],
+        [
+            2,
+            "wowow/xxx/ssss.jpg"
+        ],
+        [
+            3,
+            "wowow/xxx/ssss.jpg"
+        ],
+        [
+            4,
+            "wowow/xxx/ssss.jpg"
+        ]
+    ],
+    "explain": {
+        "used": true,
+        "details": "this is for dict_match josn when you train"
+    }
+}

@@ -30,6 +30,7 @@
             <th>课程号</th>
             <th>课程名</th>
             <th>操作</th>
+            <th>训练</th>
             <th>查看学生信息</th>
         </tr>
         </thead>
@@ -44,6 +45,13 @@
                         <input type="text" name="courseNum" id="courseNum" value="{{ i.course_id.courseNum }}" style="display: none;"/>
                         <input type="file" name="file_name" id="file_name"/>
                         <button type="submit">导入学生数据</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="/train/" method="post" target="_blank">
+                        {% csrf_token %}
+                        <input type="text" name="courseNum" id="courseNum" value="{{ i.course_id.courseNum }}" style="display: none;"/>
+                        <button type="submit">开始</button>
                     </form>
                 </td>
                 <td>

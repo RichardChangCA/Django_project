@@ -78,6 +78,9 @@ urlpatterns = [
     url(r'^anti_proof_dataset/', views.anti_proof_dataset),
     url(r'^anti_proof_train/', views.anti_proof_train),
     url(r'^students_anti_proof/', views.students_anti_proof),
+    url(r'^train/', views.train),
+    url(r'^face_recognition_students/', views.face_recognition_students),
+
 ]
 
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

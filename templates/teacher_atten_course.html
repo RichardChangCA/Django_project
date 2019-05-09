@@ -9,6 +9,7 @@
             <th>开始时间</th>
             <th>结束时间</th>
             <th>活体检测</th>
+            <th>人脸识别</th>
             <th>学生信息</th>
         </tr>
         </thead>
@@ -28,6 +29,14 @@
                         <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
                                style="display: none;"/>
                         <button type="submit">检测</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="/face_recognition_students/" method="post" target="_blank">
+                        {% csrf_token %}
+                        <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
+                               style="display: none;"/>
+                        <button type="submit">考勤</button>
                     </form>
                 </td>
                 <td>
