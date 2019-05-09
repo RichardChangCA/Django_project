@@ -53,14 +53,22 @@
                                    value="{{ phone }}" disabled/>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="display: none">
                         <label for="email" class="col-sm-4 control-label">Email:</label>
                         <div class="col-sm-4">
                             <input class="form-control" type="email" name="email" id="email"
+                                   value="{{ email }}"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email_copy" class="col-sm-4 control-label">Email:</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" type="email" name="email_copy" id="email_copy"
                                    value="{{ email }}" disabled/>
                         </div>
-
                     </div>
+
                     <div class="form-group">
                         <div class="col-sm-offset-4 col-sm-4">
                             <button type="button" class="btn btn-lg btn-primary" id="edit" onclick="edit_func()" style="display: block">修改
@@ -81,7 +89,7 @@
             $('#username').removeAttr("disabled");
             $('#password').removeAttr("disabled");
             $('#phone').removeAttr("disabled");
-            $('#email').removeAttr("disabled");
+            {#$('#email').removeAttr("disabled");#}
             $("#repassword_div").css("display", "block");
             $('#password').attr("type","password");
         }
