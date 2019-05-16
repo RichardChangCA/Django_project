@@ -80,6 +80,7 @@ urlpatterns = [
     url(r'^students_anti_proof/', views.students_anti_proof),
     url(r'^train/', views.train),
     url(r'^face_recognition_students/', views.face_recognition_students),
+    url(r'^course_verify/', views.course_verify),
 
 ]
 

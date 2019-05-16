@@ -8,6 +8,9 @@ def img_location(img_full_path):
     img_split = img_full_path.split("/")
     # print("img_split", img_split)
     img_src = ""
+    # print("length", len(img_split))
+    if(len(img_split)==1):
+        return img_src
     for i in range(len(img_split)):
         if i <= 2:
             continue

@@ -55,68 +55,68 @@
 
     </div>
     {#面板开始#}
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title">签到记录</h3>
-
-        </div>
-
-        <div class="panel-body">
-            <div class="row">
-                <button class="btn btn-success btn-lg  col-md-offset-10" id="sign_btn">
-                    {% ifequal sign_flag True %}
-                        签到
-                    {% else %}
-                        签退
-                    {% endifequal %}
-                </button>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>学号</th>
-                        <th>姓名</th>
-                        <th>签到时间</th>
-                        <th>签退时间</th>
-                        <th>时长</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for att in att_list %}
-                        <tr>
-                            <td>{{ att.stu.studentNum }}</td>
-                            <td>{{ att.stu.username }}</td>
-                            <td>{{ att.start_time }}</td>
-                            <td>{{ att.end_time }}</td>
-                            {% ifequal att.end_time None %}
-                                <td></td>
-                            {% else %}
-                                <td>{{ att.start_time | timesince:att.end_time }}</td>
-                            {% endifequal %}
-
-                        </tr>
-
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+{#    <div class="panel panel-primary">#}
+{#        <div class="panel-heading">#}
+{#            <h3 class="panel-title">签到记录</h3>#}
+{##}
+{#        </div>#}
+{##}
+{#        <div class="panel-body">#}
+{#            <div class="row">#}
+{#                <button class="btn btn-success btn-lg  col-md-offset-10" id="sign_btn">#}
+{#                    {% ifequal sign_flag True %}#}
+{#                        签到#}
+{#                    {% else %}#}
+{#                        签退#}
+{#                    {% endifequal %}#}
+{#                </button>#}
+{#            </div>#}
+{##}
+{#            <div class="table-responsive">#}
+{#                <table class="table table-striped">#}
+{#                    <thead>#}
+{#                    <tr>#}
+{#                        <th>学号</th>#}
+{#                        <th>姓名</th>#}
+{#                        <th>签到时间</th>#}
+{#                        <th>签退时间</th>#}
+{#                        <th>时长</th>#}
+{#                    </tr>#}
+{#                    </thead>#}
+{#                    <tbody>#}
+{#                    {% for att in att_list %}#}
+{#                        <tr>#}
+{#                            <td>{{ att.stu.studentNum }}</td>#}
+{#                            <td>{{ att.stu.username }}</td>#}
+{#                            <td>{{ att.start_time }}</td>#}
+{#                            <td>{{ att.end_time }}</td>#}
+{#                            {% ifequal att.end_time None %}#}
+{#                                <td></td>#}
+{#                            {% else %}#}
+{#                                <td>{{ att.start_time | timesince:att.end_time }}</td>#}
+{#                            {% endifequal %}#}
+{##}
+{#                        </tr>#}
+{##}
+{#                    {% endfor %}#}
+{#                    </tbody>#}
+{#                </table>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
     {#面板结束#}
-    <script>
-        $('.panel-body').on('click', '#sign_btn', function () {
-            $.post('/check/', {'sign':"{{ sign_flag }}"}, function (ret) {
-                window.location.reload(true)
-                alert('操作成功')
-            })
-
-        })
-        $.ajaxSetup({
-            data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
-        });
-    </script>
+{#    <script>#}
+{#        $('.panel-body').on('click', '#sign_btn', function () {#}
+{#            $.post('/check/', {'sign':"{{ sign_flag }}"}, function (ret) {#}
+{#                window.location.reload(true)#}
+{#                alert('操作成功')#}
+{#            })#}
+{##}
+{#        })#}
+{#        $.ajaxSetup({#}
+{#            data: {csrfmiddlewaretoken: '{{ csrf_token }}'},#}
+{#        });#}
+{#    </script>#}
 
 
 

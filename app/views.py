@@ -342,7 +342,7 @@ def forget_password(request):
                 secret_key = "QWqw12!@QWqw12!@"  # 密钥
                 cipher = AES.new(secret_key, AES.MODE_ECB)  # never use ECB in strong systems obviously
                 print("row.password:", str.encode(row.password))
-                decoded_password = cipher.decrypt(base64.b64decode(str.encode(row.password)))
+                decoded_password = cipher.decrypt(base64.b64decode(str.encode(row.password)))  # 解密
                 decoded_password = bytes.decode(decoded_password)  # bytes to str
                 content = "您的密码是:" + decoded_password.strip(" ")  # 正文
                 msg = MIMEText(content)
@@ -407,6 +407,25 @@ def register(request):
 
     else:
         return render(request, 'register.html')
+
+
+@csrf_exempt
+def course_verify(request):
+    if request.method == 'POST':
+        if request.is_ajax():
+
+            cour_num_v = request.POST.get('cour_num_verify')
+            email_v = request.POST.get('email_verify')
+
+            if Teacher2Course.objects.filter(teacher_id=TeacherInfo.objects.filter(email=email_v)[0].teacherNum,
+                                             course_id=cour_num_v):
+                ret = {'valid': False}
+            else:
+                ret = {'valid': True}
+
+            return HttpResponse(json.dumps(ret))
+    else:
+        return redirect("/create_course/")
 
 
 @is_login
@@ -987,8 +1006,11 @@ def create_course(request):
     if request.method == 'POST':
         courseId = request.POST.get('course_id')
         courseName = request.POST.get('course_name')
-        a = CourseInfo.objects.create(courseNum=courseId, courseName=courseName)
-        a.save()
+        if CourseInfo.objects.filter(courseNum=courseId, courseName=courseName):
+            pass
+        else:
+            a = CourseInfo.objects.create(courseNum=courseId, courseName=courseName)
+            a.save()
 
         b = Teacher2Course.objects.create(teacher_id=TeacherInfo.objects.get(teacherNum=teacherNum),
                                           course_id=CourseInfo.objects.get(courseNum=courseId))
@@ -999,7 +1021,7 @@ def create_course(request):
         print(courses)
         for i in courses:
             print(i.course_id.courseNum)
-        return render(request, "create_course.html", {"courses": courses})
+        return render(request, "create_course.html", {"courses": courses, "email": email})
 
 
 @is_admin_login
@@ -1015,6 +1037,11 @@ def add_UserInfo_2db(request):
     if request.method == 'POST':
 
         xml_file = request.FILES.get('file_name')
+        print("文件后缀", os.path.splitext(xml_file.name)[1])
+        if (os.path.splitext(xml_file.name)[1] == '.xls'):
+            pass
+        else:
+            return redirect("/operation/")
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         media_path = os.path.join(BASE_DIR, "static")
         uploads_path = os.path.join(media_path, "uploads")
@@ -1089,6 +1116,11 @@ def student2course_connection(request):
         # print("num",num)
         # print(request.FILES)
         xml_file = request.FILES.get('file_name')
+        print("文件后缀", os.path.splitext(xml_file.name)[1])
+        if (os.path.splitext(xml_file.name)[1] == '.xls'):
+            pass
+        else:
+            return redirect("/create_course/")
         # print(xml_file)
         # print(xml_file.name)
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -1115,7 +1147,7 @@ def student2course_connection(request):
             if i == 0:  # 跳过第一行，标题
                 continue
             # print(sheet1.row_values(i)[:5])  # 取前5列
-            a = choose_course.objects.create(stu=UserInfo.objects.get(studentNum=sheet1.row_values(i)[0]),
+            a = choose_course.objects.create(stu=UserInfo.objects.get(studentNum=str(int(sheet1.row_values(i)[0]))),
                                              teac=teacher_model,
                                              cour=CourseInfo.objects.get(courseNum=courseNum))
             a.save()
@@ -1323,19 +1355,24 @@ def upload_atten_demo(request):
 @is_admin_login
 def create_two_teachers(request):
     if request.method == 'POST':
-        xml_file = request.FILES.get('file_name')
+        xml_file = request.FILES.get('file_name')  # 获取前端传来的文件
+        print("文件后缀", os.path.splitext(xml_file.name)[1])
+        if (os.path.splitext(xml_file.name)[1] == '.xls'):
+            pass
+        else:
+            return redirect("/operation/")
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         media_path = os.path.join(BASE_DIR, "static")
         uploads_path = os.path.join(media_path, "uploads")
-        final_path = os.path.join(uploads_path, xml_file.name)
+        final_path = os.path.join(uploads_path, xml_file.name)  # 得到新建表的绝对路径
         if os.path.exists(final_path):
             os.remove(final_path)
-        f = open(final_path, "wb")
+        f = open(final_path, "wb")  # 打开表，并授予写入的权限
         for chunk in xml_file.chunks():
-            f.write(chunk)
+            f.write(chunk)  # 按块写入数据
         f.close()
 
-        workbook = xlrd.open_workbook(final_path)
+        workbook = xlrd.open_workbook(final_path)  # 打开新表
         print(workbook.sheet_names())  # 查看所有sheet名称
         sheet1 = workbook.sheet_by_index(0)  # 用索引取第1个sheet
 
@@ -1348,7 +1385,7 @@ def create_two_teachers(request):
             if i == 0:  # 跳过第一行，标题
                 continue
             print(sheet1.row_values(i)[:5])  # 取前5列
-            print(str(int(sheet1.row_values(i)[0])))
+            print(str(int(sheet1.row_values(i)[0])))  # 将值转换为字符串类型
             a = TeacherInfo.objects.create(teacherNum=str(int(sheet1.row_values(i)[0])),
                                            password=sheet1.row_values(i)[1],
                                            teacherName=sheet1.row_values(i)[2],
