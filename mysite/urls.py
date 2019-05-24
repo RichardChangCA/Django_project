@@ -81,6 +81,14 @@ urlpatterns = [
     url(r'^train/', views.train),
     url(r'^face_recognition_students/', views.face_recognition_students),
     url(r'^course_verify/', views.course_verify),
+    url(r'^wifi_finger/', views.wifi_finger),
+    url(r'^manage_student_account/', views.manage_student_account),
+    url(r'^manage_teacher_account/', views.manage_teacher_account),
+    url(r'^delete_attendance/', views.delete_attendance),
+    url(r'^delete_course/', views.delete_course),
+    url(r'^delete_choose_course/', views.delete_choose_course),
+    url(r'^stu_check_atten/', views.stu_check_atten),
+    url(r'^attendance_complain/', views.attendance_complain),
 
 ]
 

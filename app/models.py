@@ -79,7 +79,7 @@ class attendance(models.Model):
     stu = models.ForeignKey('UserInfo', on_delete=models.CASCADE)
     att = models.ForeignKey('AttendanceInfo', on_delete=models.CASCADE)
     dbm = models.CharField(null=False, max_length=20)
-    tag = models.CharField(null=False, max_length=1)  # 考勤状态，0为缺勤，1为出勤，2为等待考核
+    tag = models.CharField(null=False, max_length=1)  # 考勤状态
     attendance_time = models.DateTimeField(null=False)
     # img1 = models.ImageField(upload_to="attendance_set/")
     # img2 = models.ImageField(upload_to="attendance_set/")
@@ -87,6 +87,7 @@ class attendance(models.Model):
     img1 = models.CharField(max_length=128, null=True)
     img2 = models.CharField(max_length=128, null=True)
     img3 = models.CharField(max_length=128, null=True)
+    complain_tag = models.CharField(null=False, max_length=1, default=0) #申诉标志，0为等待考勤，3为考勤完成，4为考勤提出申诉
 
     class Meta:
         unique_together = ('stu', 'att')

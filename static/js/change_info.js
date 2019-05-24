@@ -51,7 +51,7 @@ $(function () {/* 文档加载，执行一个函数*/
                         },
                         regexp: {
                             regexp: /^[a-zA-Z0-9_\.]+$/,
-                            message: 'The username can only consist of alphabetical, number, dot and underscore'
+                            message: '密码只能是大小写字母、数字、点与下划线'
                         }
                     }
                 },

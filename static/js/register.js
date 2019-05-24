@@ -24,22 +24,7 @@ $(function () {/* 文档加载，执行一个函数*/
                             max: 20,
                             message: '用户名长度必须在1到20之间'
                         },
-                        threshold: 1, //有1字符以上才发送ajax请求，（input中输入一个字符，插件会向服务器发送一次，设置限制，1字符以上才开始）
-                        remote: {//ajax验证。server result:{"valid",true or false} 向服务发送当前input name值，获得一个json数据。例表示正确：{"valid",true}
-                            url: '/register/',//验证地址
-                            message: '用户已存在',//提示消息
-                            delay: 2000,//每输入一个字符，就发ajax请求，服务器压力还是太大，设置2秒发送一次ajax（默认输入一个字符，提交一次，服务器压力太大）
-                            type: 'POST',//请求方式
-                            /**自定义提交数据，默认值提交当前input value*/
-                            data: function(t) {
 
-                               return {
-                                   stu_num_verify: $('[name="stu_num"]').val()
-                                   // whatever: $('[name="whateverNameAttributeInYourForm"]').val()
-                               };
-                            }
-
-                        },
                         regexp: {
                             regexp: /^.+$/,
                             message: ''
@@ -67,7 +52,7 @@ $(function () {/* 文档加载，执行一个函数*/
                         },
                         regexp: {
                             regexp: /^[a-zA-Z0-9_\.]+$/,
-                            message: 'The username can only consist of alphabetical, number, dot and underscore'
+                            message: '密码只能是大小写字母、数字、点与下划线'
                         }
                     }
                 },
@@ -92,7 +77,7 @@ $(function () {/* 文档加载，执行一个函数*/
                         },
                         regexp: {//匹配规则
                             regexp: /^[a-zA-Z0-9_\.]+$/,
-                            message: 'The username can only consist of alphabetical, number, dot and underscore'
+                            message: '密码只能是大小写字母、数字、点与下划线'
                         }
                     }
                 },
@@ -133,6 +118,22 @@ $(function () {/* 文档加载，执行一个函数*/
                             min: 8,
                             max: 8,
                             message: '请输入8位学号'
+                        },
+                        threshold: 1, //有1字符以上才发送ajax请求，（input中输入一个字符，插件会向服务器发送一次，设置限制，1字符以上才开始）
+                        remote: {//ajax验证。server result:{"valid",true or false} 向服务发送当前input name值，获得一个json数据。例表示正确：{"valid",true}
+                            url: '/register/',//验证地址
+                            message: '用户已存在',//提示消息
+                            delay: 2000,//每输入一个字符，就发ajax请求，服务器压力还是太大，设置2秒发送一次ajax（默认输入一个字符，提交一次，服务器压力太大）
+                            type: 'POST',//请求方式
+                            /**自定义提交数据，默认值提交当前input value*/
+                            data: function(t) {
+
+                               return {
+                                   stu_num_verify: $('[name="stu_num"]').val()
+                                   // whatever: $('[name="whateverNameAttributeInYourForm"]').val()
+                               };
+                            }
+
                         },
                         regexp: {
                             regexp: /^([0-9]{8})$/,

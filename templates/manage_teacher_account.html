@@ -1,0 +1,33 @@
+{% extends 'base_admin.html' %}
+{% block content %}
+<h1 class="page-header">教师账号管理</h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>教工号</th>
+            <th>姓名</th>
+            <th>电话</th>
+            <th>邮箱</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in teachers %}
+            <tr>
+                <td>{{ i.teacherNum }}</td>
+                <td>{{ i.teacherName }}</td>
+                <td>{{ i.phone }}</td>
+                <td>{{ i.email }}</td>
+                <td>
+                    <form action="/manage_teacher_account/" method="post">
+                        {% csrf_token %}
+                        <input type="text" name="teacher_code" id="teacher_code" value="{{ i.teacherNum }}"
+                               style="display: none;"/>
+                        <button type="submit">删除</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

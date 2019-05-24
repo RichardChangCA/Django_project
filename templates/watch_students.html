@@ -11,6 +11,7 @@
             <th>电话</th>
             <th>邮箱</th>
             <th>图片</th>
+            <th>操作</th>
         </tr>
         </thead>
         <tbody>
@@ -34,6 +35,16 @@
                     </form>
                     {#                    <img src="{{ i.stu.img1|get_img_path }}" alt="学生人脸-{{ i.stu.studentNum }}-{{ i.stu.username }}"#}
                     {#                         height="100">#}
+                </td>
+                <td>
+                    <form method="post" action="/delete_choose_course/">
+                        {% csrf_token %}
+                        <input type="text" name="cour_id" id="cour_id"
+                               value="{{ courseNum }}" style="display: none;">
+                        <input type="text" name="stu_id" id="stu_id"
+                               value="{{ i.stu.studentNum }}" style="display: none;">
+                        <button type="submit" class="btn btn-default">删除</button>
+                    </form>
                 </td>
                 {#                <td>#}
                 {#                    <form action="/human_face/" method="post" id="form_tag" name="form_tag">#}

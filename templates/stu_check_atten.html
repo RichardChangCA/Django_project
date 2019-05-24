@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1 class="page-header">签到信息<a href="/chosen_course/" class="pull-right">←返回上层</a></h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>考勤开始时间</th>
+            <th>考勤结束时间</th>
+            <th>签到结果</th>
+            <th>人脸识别结果</th>
+            <th>活体检测结果</th>
+            <th>WiFi指纹结果</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in stu_atten_results %}
+            <tr>
+                <td>{{ i.att.attendance_start_time|date:"Y-m-d H:i:s" }}</td>
+                <td>{{ i.att.attendance_end_time|date:"Y-m-d H:i:s" }}</td>
+                {% if i.tag == "9" %}
+                    <td style="color: green">出勤</td>
+                {% else %}
+                    <td style="color: red">缺勤</td>
+                {% endif %}
+                {% if i.tag == "4" or i.tag == "6" or i.tag == "7" or i.tag == "9" %}
+                    <td style="color: green">成功</td>
+                {% else %}
+                    <td style="color: red">失败</td>
+                {% endif %}
+                {% if i.tag == "3" or i.tag == "5" or i.tag == "7" or i.tag == "9" %}
+                    <td style="color: green">成功</td>
+                {% else %}
+                    <td style="color: red">失败</td>
+                {% endif %}
+                {% if i.tag == "2" or i.tag == "5" or i.tag == "6" or i.tag == "9" %}
+                    <td style="color: green">成功</td>
+                {% else %}
+                    <td style="color: red">失败</td>
+                {% endif %}
+                <td>
+                    <form method="post" action="/attendance_complain/">
+                        {% csrf_token %}
+                        <input type="text" name="attendance_id" id="attendance_id"
+                               value="{{ i.att }}" style="display: none;">
+                        <button type="submit" class="btn btn-default">申诉</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+{% endblock content %}

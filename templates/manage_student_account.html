@@ -1,0 +1,33 @@
+{% extends 'base_admin.html' %}
+{% block content %}
+    <h1 class="page-header">学生账号管理</h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>学号</th>
+            <th>姓名</th>
+            <th>电话</th>
+            <th>邮箱</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in students %}
+            <tr>
+                <td>{{ i.studentNum }}</td>
+                <td>{{ i.username }}</td>
+                <td>{{ i.phone }}</td>
+                <td>{{ i.email }}</td>
+                <td>
+                    <form action="/manage_student_account/" method="post">
+                        {% csrf_token %}
+                        <input type="text" name="student_code" id="student_code" value="{{ i.studentNum }}"
+                               style="display: none;"/>
+                        <button type="submit">删除</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

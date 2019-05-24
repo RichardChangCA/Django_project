@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h1 class="page-header">查看课程</h1>
+    <h1 class="page-header">课程信息</h1>
     <table class="table table-striped">
         <thead>
         <tr>
@@ -8,6 +8,7 @@
             <th>课程名</th>
             <th>教师号</th>
             <th>教师名</th>
+            <th>签到信息</th>
         </tr>
         </thead>
         <tbody>
@@ -18,6 +19,16 @@
                 <td>{{ i.1.courseName }}</td>
                 <td>{{ i.0.teacherNum }}</td>
                 <td>{{ i.0.teacherName }}</td>
+                <td>
+                    <form method="post" action="/stu_check_atten/">
+                        {% csrf_token %}
+                        <input type="text" name="cour_id" id="cour_id"
+                               value="{{ i.1.courseNum }}" style="display: none;">
+                        <input type="text" name="teac_id" id="teac_id"
+                               value="{{ i.0.teacherNum }}" style="display: none;">
+                        <button type="submit" class="btn btn-default">查看</button>
+                    </form>
+                </td>
             </tr>
         {% endfor %}
         </tbody>

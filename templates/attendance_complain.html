@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1 class="page-header">考勤申诉<form action="#" class="pull-right"><button type="submit">返回上页</button></form></h1>
+{#    对考勤进行描述，不超过...字#}
+
+    <form action="#" method="post">
+    <textarea name="complain_words" id="complain_words" cols="30" rows="10"></textarea>
+    <button type="submit">提交</button>
+    <button type="reset">重置</button>
+    </form>
+{% endblock content %}
