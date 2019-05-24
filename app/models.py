@@ -88,6 +88,7 @@ class attendance(models.Model):
     img2 = models.CharField(max_length=128, null=True)
     img3 = models.CharField(max_length=128, null=True)
     complain_tag = models.CharField(null=False, max_length=1, default=0) #申诉标志，0为等待考勤，3为考勤完成，4为考勤提出申诉
+    complain_text = models.CharField(max_length=256, null=True) #最多64个字
 
     class Meta:
         unique_together = ('stu', 'att')

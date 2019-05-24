@@ -89,7 +89,7 @@ urlpatterns = [
     url(r'^delete_choose_course/', views.delete_choose_course),
     url(r'^stu_check_atten/', views.stu_check_atten),
     url(r'^attendance_complain/', views.attendance_complain),
-
+    url(r'^complain_process/', views.complain_process),
 ]
 
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

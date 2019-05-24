@@ -10,7 +10,7 @@
             <th>人脸识别结果</th>
             <th>活体检测结果</th>
             <th>WiFi指纹结果</th>
-            <th>操作</th>
+            <th>考勤申诉</th>
         </tr>
         </thead>
         <tbody>
@@ -38,14 +38,20 @@
                 {% else %}
                     <td style="color: red">失败</td>
                 {% endif %}
+            {% if i.complain_tag == '3' %}
                 <td>
                     <form method="post" action="/attendance_complain/">
                         {% csrf_token %}
                         <input type="text" name="attendance_id" id="attendance_id"
-                               value="{{ i.att }}" style="display: none;">
+                               value="{{ i.att.attendance_id }}" style="display: none;">
                         <button type="submit" class="btn btn-default">申诉</button>
                     </form>
                 </td>
+                {% elif i.complain_tag == '4' %}
+                <td style="color: blue">处理中..</td>
+            {% else %}
+            <td style="color: grey">等待考勤</td>
+            {% endif %}
             </tr>
         {% endfor %}
         </tbody>

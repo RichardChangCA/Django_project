@@ -2755,9 +2755,33 @@ def stu_check_atten(request):
 @is_login
 def attendance_complain(request):
     if request.method == 'POST':
+        attendance_id = request.POST.get("attendance_id")
+        att = AttendanceInfo.objects.filter(attendance_id=attendance_id)[0]
+        # print(att.course_id.courseNum)
+        return render(request, "attendance_complain.html", {"att": att})
+    else:
+        return redirect("/chosen_course/")
+
+
+@is_login
+def complain_process(request):
+    if request.method == 'POST':
         email = request.COOKIES["qwer"]
         student_model = UserInfo.objects.get(email=email)
-        att = request.POST.get("attendance_id")
-        return render(request, "attendance_complain.html")
+        attendance_id = request.POST.get("attendance_id")
+        complain_words = request.POST.get("complain_words")
+        # print(complain_words)
+        att = AttendanceInfo.objects.filter(attendance_id=attendance_id)[0]
+        complain_tag = attendance.objects.filter(stu=student_model, att=att)[0].complain_tag
+        attendance.objects.filter(stu=student_model, att=att).update(complain_tag=str(int(complain_tag) + 1),
+                                                                     complain_text=complain_words)
+        stu_atten_results = []
+        atten_info_results = AttendanceInfo.objects.filter(course_id=att.course_id.courseNum,
+                                                           teacher_id=att.teacher_id.teacherNum)
+        for row in atten_info_results:
+            stu_atten_results.append(attendance.objects.filter(stu=student_model, att=row.attendance_id)[0])
+        return render(request, "stu_check_atten.html",
+                      {"stu_atten_results": stu_atten_results})
+
     else:
         return redirect("/chosen_course/")
