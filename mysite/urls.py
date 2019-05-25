@@ -90,6 +90,7 @@ urlpatterns = [
     url(r'^stu_check_atten/', views.stu_check_atten),
     url(r'^attendance_complain/', views.attendance_complain),
     url(r'^complain_process/', views.complain_process),
+    url(r'^deal_complain/', views.deal_complain),
 ]
 
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

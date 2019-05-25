@@ -2785,3 +2785,18 @@ def complain_process(request):
 
     else:
         return redirect("/chosen_course/")
+
+
+@is_teacher_login
+def deal_complain(request):
+    email = request.COOKIES["qwer"]
+    teacher_model = TeacherInfo.objects.get(email=email)
+    complain_list = []
+    att_info = AttendanceInfo.objects.filter(teacher_id=teacher_model)
+    for row in att_info:
+        att = attendance.objects.filter(att=row.attendance_id)
+        for row_2 in att:
+            comp = attendance.objects.filter(stu=row_2.stu, att=row_2.att)[0]
+            if comp.complain_tag == '4':
+                complain_list.append(comp)
+    return render(request, "deal_complain.html", {"complain_list": complain_list})
