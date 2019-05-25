@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login
 from .api import check_cookie, check_login, DecimalEncoder, is_login, check_teacher_login, teacher_check_cookie, \
     is_teacher_login, check_admin_login, is_admin_login, admin_check_cookie
 from .models import UserInfo, TeacherInfo, CourseInfo, Teacher2Course, choose_course, AdminInfo, attendance, \
-    AttendanceInfo
+    AttendanceInfo, complain
 # from .forms import fileForm
 # django自带加密解密库
 from django.views.decorators.csrf import csrf_exempt
@@ -1072,6 +1072,7 @@ def add_UserInfo_2db(request):
                                         phone=str(int(sheet1.row_values(i)[3])), email=sheet1.row_values(i)[4])
 
             a.save()
+        os.remove(final_path)
         return render(request, "operation.html", {"success": "提交学生用户数据成功"})
     else:
         return redirect("/operation/")
@@ -1151,6 +1152,7 @@ def student2course_connection(request):
                                              teac=teacher_model,
                                              cour=CourseInfo.objects.get(courseNum=courseNum))
             a.save()
+        os.remove(final_path)
         return redirect("/create_course/")
     else:
         return redirect("/create_course/")
@@ -1402,6 +1404,7 @@ def create_two_teachers(request):
                                            phone=str(int(sheet1.row_values(i)[3])),
                                            email=sheet1.row_values(i)[4])
             a.save()
+        os.remove(final_path)
         return render(request, "operation.html", {"success": "创建教师用户数据成功"})
     else:
         return redirect("/operation/")
@@ -1891,17 +1894,17 @@ def students_anti_proof(request):
                         if (anti_proof_tag == 0):
                             print("假人")
                             attendance.objects.filter(stu=row.stu, att=row.att).update(
-                                complain_tag=str(int(row.complain_tag) + 1))
+                                finish_tag=str(int(row.finish_tag) + 3))
                         else:
                             print("真人")
                             attendance.objects.filter(stu=row.stu, att=row.att).update(tag=str(int(row.tag) + 3),
-                                                                                       complain_tag=str(
-                                                                                           int(row.complain_tag) + 1))
+                                                                                       finish_tag=str(
+                                                                                           int(row.finish_tag) + 3))
                     else:
                         print("真人")
                         attendance.objects.filter(stu=row.stu, att=row.att).update(tag=str(int(row.tag) + 3),
-                                                                                   complain_tag=str(
-                                                                                       int(row.complain_tag) + 1))
+                                                                                   finish_tag=str(
+                                                                                       int(row.finish_tag) + 3))
 
                 # elif (anti_proof_tag == 1):
                 #     print("真人")
@@ -1909,8 +1912,8 @@ def students_anti_proof(request):
                     # print("模式错误")
                     print("真人")
                     attendance.objects.filter(stu=row.stu, att=row.att).update(tag=str(int(row.tag) + 3),
-                                                                               complain_tag=str(
-                                                                                   int(row.complain_tag) + 1))
+                                                                               finish_tag=str(
+                                                                                   int(row.finish_tag) + 3))
                     # print('is true face? %s' % anti_proof_tag)
                 # num = input("number:")
                 # my_face = cv2.imread("C:/Users/46507/PycharmProjects/LearnTF/my_faces/" + num + ".bmp")
@@ -1920,6 +1923,8 @@ def students_anti_proof(request):
                 # cv2.rectangle(img, (x2, x1), (y2, y1), (255, 0, 0), 3)
                 # cv2.imshow('face', face)
         # 这里只能假设都为真
+        att_model = AttendanceInfo.objects.filter(attendance_id=attendance_id)
+        att_model.update(attendance_tag=str(int(att_model[0].attendance_tag) + 3))
         return HttpResponse("活体检测成功")
     else:
         return redirect("/teacher_manage_atten/")
@@ -2545,11 +2550,12 @@ def wifi_finger(request):
         min_dbm = my_dbscan.show_clusters()
         for row in atten_info:
             if (int(row.dbm) < min_dbm):
-                attendance.objects.filter(stu=row.stu, att=row.att).update(complain_tag=str(int(row.complain_tag) + 1))
+                attendance.objects.filter(stu=row.stu, att=row.att).update(finish_tag=str(int(row.finish_tag) + 2))
             else:
                 attendance.objects.filter(stu=row.stu, att=row.att).update(tag=str(int(row.tag) + 2),
-                                                                           complain_tag=str(int(row.complain_tag) + 1))
-
+                                                                           finish_tag=str(int(row.finish_tag) + 2))
+        att_model = AttendanceInfo.objects.filter(attendance_id=attendance_id)
+        att_model.update(attendance_tag=str(int(att_model[0].attendance_tag) + 2))
         return HttpResponse("学生考勤成功")
     else:
         return redirect("/teacher_manage_atten/")
@@ -2612,8 +2618,8 @@ def face_recognition_students(request):
                     if (num_list[0] == which_one):
                         if (num_list[1] == row.stu.studentNum):
                             attendance.objects.filter(stu=row.stu, att=row.att).update(tag=str(int(row.tag) + 4),
-                                                                                       complain_tag=str(
-                                                                                           int(row.complain_tag) + 1))
+                                                                                       finish_tag=str(
+                                                                                           int(row.finish_tag) + 4))
                             print("出勤")
                             end_tag = 1
                         else:
@@ -2626,7 +2632,7 @@ def face_recognition_students(request):
                                 if (num_list[0] == which_one):
                                     if (num_list[1] == row.stu.studentNum):
                                         attendance.objects.filter(stu=row.stu, att=row.att).update(
-                                            tag=str(int(row.tag) + 4), complain_tag=str(int(row.complain_tag) + 1))
+                                            tag=str(int(row.tag) + 4), finish_tag=str(int(row.finish_tag) + 4))
                                         print("出勤")
                                         end_tag = 1
                                     else:
@@ -2640,12 +2646,12 @@ def face_recognition_students(request):
                                                 if (num_list[1] == row.stu.studentNum):
                                                     attendance.objects.filter(stu=row.stu, att=row.att).update(
                                                         tag=str(int(row.tag) + 4),
-                                                        complain_tag=str(int(row.complain_tag) + 1))
+                                                        finish_tag=str(int(row.finish_tag) + 4))
                                                     print("出勤")
                                                     end_tag = 1
                                                 else:
                                                     attendance.objects.filter(stu=row.stu, att=row.att).update(
-                                                        complain_tag=str(int(row.complain_tag) + 1))
+                                                        finish_tag=str(int(row.finish_tag) + 4))
                                                     print("缺勤")
                                                     end_tag = 1
                                             else:
@@ -2662,6 +2668,8 @@ def face_recognition_students(request):
                         continue
                     if (end_tag == 1):
                         break
+        att_model = AttendanceInfo.objects.filter(attendance_id=attendance_id)
+        att_model.update(attendance_tag=str(int(att_model[0].attendance_tag) + 4))
 
         return HttpResponse("学生考勤成功")
     else:
@@ -2746,8 +2754,12 @@ def stu_check_atten(request):
         atten_info_results = AttendanceInfo.objects.filter(course_id=course_id, teacher_id=teacher_id)
         for row in atten_info_results:
             stu_atten_results.append(attendance.objects.filter(stu=student_model, att=row.attendance_id)[0])
+        complain_results = []
+        complain_model = complain.objects.filter(stu=student_model)
+        for row in complain_model:
+            complain_results.append(row.att.attendance_id)
         return render(request, "stu_check_atten.html",
-                      {"stu_atten_results": stu_atten_results})
+                      {"stu_atten_results": stu_atten_results, "complain_results": complain_results})
     else:
         return redirect("/chosen_course/")
 
@@ -2772,16 +2784,18 @@ def complain_process(request):
         complain_words = request.POST.get("complain_words")
         # print(complain_words)
         att = AttendanceInfo.objects.filter(attendance_id=attendance_id)[0]
-        complain_tag = attendance.objects.filter(stu=student_model, att=att)[0].complain_tag
-        attendance.objects.filter(stu=student_model, att=att).update(complain_tag=str(int(complain_tag) + 1),
-                                                                     complain_text=complain_words)
+        complain.objects.create(stu=student_model, att=att, complain_text=complain_words)
         stu_atten_results = []
         atten_info_results = AttendanceInfo.objects.filter(course_id=att.course_id.courseNum,
                                                            teacher_id=att.teacher_id.teacherNum)
         for row in atten_info_results:
             stu_atten_results.append(attendance.objects.filter(stu=student_model, att=row.attendance_id)[0])
+        complain_results = []
+        complain_model = complain.objects.filter(stu=student_model)
+        for row in complain_model:
+            complain_results.append(row.att.attendance_id)
         return render(request, "stu_check_atten.html",
-                      {"stu_atten_results": stu_atten_results})
+                      {"stu_atten_results": stu_atten_results, "complain_results": complain_results})
 
     else:
         return redirect("/chosen_course/")
@@ -2794,9 +2808,16 @@ def deal_complain(request):
     complain_list = []
     att_info = AttendanceInfo.objects.filter(teacher_id=teacher_model)
     for row in att_info:
-        att = attendance.objects.filter(att=row.attendance_id)
-        for row_2 in att:
-            comp = attendance.objects.filter(stu=row_2.stu, att=row_2.att)[0]
-            if comp.complain_tag == '4':
-                complain_list.append(comp)
+        complains = complain.objects.filter(att=row.attendance_id)
+        for row_2 in complains:
+            complain_list.append(row_2)
     return render(request, "deal_complain.html", {"complain_list": complain_list})
+
+@is_teacher_login
+def teacher_check_complain(request):
+    if request.method == 'POST':
+        attendance_id = request.POST.get("attendance_id")
+        student_code = request.POST.get("student_code")
+        return render(request, "teacher_check_complain.html")
+    else:
+        return redirect("/deal_complain/")

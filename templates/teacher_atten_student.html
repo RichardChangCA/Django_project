@@ -17,25 +17,48 @@
         <tbody>
         {% for i in atten_info %}
             <tr>
-                {% if i.tag == "9" %}
-                    <td style="color: green">出勤</td>
+                {% if i.att.attendance_tag == '1' %}
+                    <td style="color: grey">正在考勤</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                 {% else %}
-                    <td style="color: red">缺勤</td>
-                {% endif %}
-                {% if i.tag == "4" or i.tag == "6" or i.tag == "7" or i.tag == "9" %}
-                    <td style="color: green">成功</td>
-                {% else %}
-                    <td style="color: red">失败</td>
-                {% endif %}
-                {% if i.tag == "3" or i.tag == "5" or i.tag == "7" or i.tag == "9" %}
-                    <td style="color: green">成功</td>
-                {% else %}
-                    <td style="color: red">失败</td>
-                {% endif %}
-                {% if i.tag == "2" or i.tag == "5" or i.tag == "6" or i.tag == "9" %}
-                    <td style="color: green">成功</td>
-                {% else %}
-                    <td style="color: red">失败</td>
+                    {% if i.finish_tag == '9' %}
+                        {% if i.tag == "9" %}
+                            <td style="color: green">出勤</td>
+                        {% else %}
+                            <td style="color: red">缺勤</td>
+                        {% endif %}
+                    {% else %}
+                        <td style="color: grey">等待考核</td>
+                    {% endif %}
+                    {% if i.finish_tag == "4" or i.finish_tag == "6" or i.finish_tag == "7" or i.finish_tag == "9" %}
+                        {% if i.tag == "4" or i.tag == "6" or i.tag == "7" or i.tag == "9" %}
+                            <td style="color: green">成功</td>
+                        {% else %}
+                            <td style="color: red">失败</td>
+                        {% endif %}
+                    {% else %}
+                        <td style="color: grey">等待考核</td>
+                    {% endif %}
+                    {% if i.finish_tag == "3" or i.finish_tag == "5" or i.finish_tag == "7" or i.finish_tag == "9" %}
+                        {% if i.tag == "3" or i.tag == "5" or i.tag == "7" or i.tag == "9" %}
+                            <td style="color: green">成功</td>
+                        {% else %}
+                            <td style="color: red">失败</td>
+                        {% endif %}
+                    {% else %}
+                        <td style="color: grey">等待考核</td>
+                    {% endif %}
+                    {% if i.finish_tag == "2" or i.finish_tag == "5" or i.finish_tag == "6" or i.finish_tag == "9" %}
+                        {% if i.tag == "2" or i.tag == "5" or i.tag == "6" or i.tag == "9" %}
+                            <td style="color: green">成功</td>
+                        {% else %}
+                            <td style="color: red">失败</td>
+                        {% endif %}
+                    {% else %}
+                        <td style="color: grey">等待考核</td>
+                    {% endif %}
                 {% endif %}
                 <td>{{ i.attendance_time|date:"Y-m-d H:i:s" }}</td>
                 <td>{{ i.stu.studentNum }}</td>

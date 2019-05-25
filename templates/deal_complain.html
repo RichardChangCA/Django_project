@@ -23,7 +23,7 @@
                 <td>{{ i.att.attendance_start_time|date:"Y-m-d H:i:s" }}</td>
                 <td>{{ i.att.attendance_end_time|date:"Y-m-d H:i:s" }}</td>
                 <td>
-                    <form method="post" action="#">
+                    <form method="post" action="/teacher_check_complain/">
                         {% csrf_token %}
                         <input type="text" name="student_code" id="student_code"
                                value="{{ i.att.attendance_id }}" style="display: none;">

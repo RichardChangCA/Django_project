@@ -20,35 +20,53 @@
             <tr>
                 {% if i.attendance_tag == "1" %}
                     <td style="color: green">正在考勤</td>
+                    <td>{{ i.attendance_start_time|date:"Y-m-d H:i:s" }}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                 {% else %}
                     <td style="color: red">考勤结束</td>
+                    <td>{{ i.attendance_start_time|date:"Y-m-d H:i:s" }}</td>
+                    <td>{{ i.attendance_end_time|date:"Y-m-d H:i:s" }}</td>
+                    {% if i.attendance_tag == '3' or i.attendance_tag == '5' or i.attendance_tag == '7' or i.attendance_tag == '9' %}
+                        <td style="color:grey">已检测</td>
+                    {% else %}
+                        <td>
+                            <form action="/students_anti_proof/" method="post" target="_blank">
+                                {% csrf_token %}
+                                <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
+                                       style="display: none;"/>
+                                <button type="submit">检测</button>
+                            </form>
+                        </td>
+                    {% endif %}
+                    {% if i.attendance_tag == '4' or i.attendance_tag == '6' or i.attendance_tag == '7' or i.attendance_tag == '9' %}
+                        <td style="color:grey">已识别</td>
+                    {% else %}
+                        <td>
+                            <form action="/face_recognition_students/" method="post" target="_blank">
+                                {% csrf_token %}
+                                <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
+                                       style="display: none;"/>
+                                <button type="submit">识别</button>
+                            </form>
+                        </td>
+                    {% endif %}
+                    {% if i.attendance_tag == '2' or i.attendance_tag == '5' or i.attendance_tag == '6' or i.attendance_tag == '9' %}
+                        <td style="color:grey">已聚类</td>
+                    {% else %}
+                        <td>
+                            <form action="/wifi_finger/" method="post" target="_blank">
+                                {% csrf_token %}
+                                <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
+                                       style="display: none;"/>
+                                <button type="submit">聚类</button>
+                            </form>
+                        </td>
+                    {% endif %}
                 {% endif %}
-                <td>{{ i.attendance_start_time|date:"Y-m-d H:i:s" }}</td>
-                <td>{{ i.attendance_end_time|date:"Y-m-d H:i:s" }}</td>
-                <td>
-                    <form action="/students_anti_proof/" method="post" target="_blank">
-                        {% csrf_token %}
-                        <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
-                               style="display: none;"/>
-                        <button type="submit">检测</button>
-                    </form>
-                </td>
-                <td>
-                    <form action="/face_recognition_students/" method="post" target="_blank">
-                        {% csrf_token %}
-                        <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
-                               style="display: none;"/>
-                        <button type="submit">识别</button>
-                    </form>
-                </td>
-                <td>
-                    <form action="/wifi_finger/" method="post" target="_blank">
-                        {% csrf_token %}
-                        <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
-                               style="display: none;"/>
-                        <button type="submit">聚类</button>
-                    </form>
-                </td>
+
                 <td>
                     <form action="/teacher_atten_course/" method="post" target="_blank">
                         {% csrf_token %}
