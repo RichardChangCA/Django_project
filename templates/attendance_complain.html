@@ -13,7 +13,7 @@
 
     <form action="/complain_process/" method="post">
         {% csrf_token %}
-        <textarea name="complain_words" id="complain_words" cols="30" rows="10" placeholder="最多64个字"></textarea>
+        <textarea name="complain_words" id="complain_words" cols="30" rows="5" placeholder="最多64个字"></textarea>
         <input type="text" name="attendance_id" id="attendance_id"
                value="{{ att.attendance_id }}" style="display: none;">
         <button type="submit">提交</button>

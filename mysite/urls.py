@@ -92,6 +92,9 @@ urlpatterns = [
     url(r'^complain_process/', views.complain_process),
     url(r'^deal_complain/', views.deal_complain),
     url(r'^teacher_check_complain/', views.teacher_check_complain),
+    url(r'^success_complain/', views.success_complain),
+    url(r'^fail_complain/', views.fail_complain),
+    url(r'^check_complain_result/', views.check_complain_result),
 
 ]
 

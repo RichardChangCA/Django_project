@@ -73,7 +73,7 @@ class AttendanceInfo(models.Model):
     teacher_id = models.ForeignKey('TeacherInfo', null=False, on_delete=models.CASCADE)
     attendance_start_time = models.DateTimeField(null=False)
     attendance_end_time = models.DateTimeField(null=True, default=None)
-    attendance_tag = models.CharField(null=False, max_length=1)  # 考勤标志， 1为考勤中，0为考勤结束
+    attendance_tag = models.CharField(null=False, max_length=1)  # 考勤标志， 1为考勤中，0为考勤结束，...
 
 
 class attendance(models.Model):
@@ -90,6 +90,7 @@ class attendance(models.Model):
     img2 = models.CharField(max_length=255, null=True, unique=True, default=None)
     img3 = models.CharField(max_length=255, null=True, unique=True, default=None)
     finish_tag = models.CharField(null=False, max_length=1, default=0)  # 考勤完成状态
+    complain_tag = models.CharField(null=False, max_length=1, default=2)  # 申诉标志 0等待申诉，1申诉完成，2未申诉
 
     class Meta:
         unique_together = ('stu', 'att')

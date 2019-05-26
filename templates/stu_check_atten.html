@@ -51,8 +51,17 @@
                     {% else %}
                         <td style="color: red">失败</td>
                     {% endif %}
-                    {% if i.att.attendance_id in complain_results %}
+                    {% if i.complain_tag == '0' %}
                         <td>申诉中..</td>
+                    {% elif i.complain_tag == '1' %}
+                        <td>
+                            <form method="post" action="/check_complain_result/">
+                                {% csrf_token %}
+                                <input type="text" name="attendance_id" id="attendance_id"
+                                       value="{{ i.att.attendance_id }}" style="display: none;">
+                                <button type="submit" class="btn btn-default">查看结果</button>
+                            </form>
+                        </td>
                     {% else %}
                         <td>
                             <form method="post" action="/attendance_complain/">

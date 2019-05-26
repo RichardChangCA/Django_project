@@ -1,6 +1,114 @@
 {% extends 'base_teacher.html' %}
 {% block content %}
-    <h1 class="page-header">学生申诉<a href="/deal_complain/" class="pull-right">←返回上层</a></h1>
+    <h1 class="page-header">学生申诉信息<a href="/deal_complain/" class="pull-right">←返回上层</a></h1>
+    {% load filters %}
+
+    <section class="panel">
+        {#        <header class="panel-heading head-border">#}
+        {#            学生考勤信息#}
+        {#        </header>#}
+        <table class="table table-striped">
+            <tbody>
+            <tr>
+                <td>学号</td>
+                <td>{{ stu.studentNum }}</td>
+
+
+            </tr>
+            <tr>
+                <td>姓名</td>
+                <td>{{ stu.username }}</td>
+            </tr>
+            <tr>
+                <td>学生长相</td>
+                <td><img src="{{ stu.img1|get_img_path }}" alt="学生人脸1" width="30%"/>
+                    <button id="stu_face" name="stu_face">下一张</button>
+                </td>
+            </tr>
+            <tr>
+                <td>考勤人脸</td>
+                <td><img src="{{ atten.img1|get_img_path }}" alt="考勤人脸1" width="30%"/>
+                    <button id="att_face" name="att_face">下一张</button>
+                </td>
+            </tr>
+            <tr>
+                <td>课程号</td>
+                <td>{{ atten.att.course_id.courseNum }}</td>
+            </tr>
+            <tr>
+                <td>课程名</td>
+                <td>{{ atten.att.course_id.courseName }}</td>
+            </tr>
+            <tr>
+                <td>考勤开始时间</td>
+                <td>{{ atten.att.attendance_start_time|date:"Y-m-d H:i:s" }}</td>
+            </tr>
+            <tr>
+                <td>考勤结束时间</td>
+                <td>{{ atten.att.attendance_end_time|date:"Y-m-d H:i:s" }}</td>
+            </tr>
+            <tr>
+                <td>人脸识别</td>
+                {% if atten.tag == '4' or atten.tag == '6' or atten.tag == '7' or atten.tag == '9' %}
+                    <td style="color: green">成功</td>
+                {% else %}
+                    <td style="color: red">失败</td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>活体检测</td>
+                {% if atten.tag == '3' or atten.tag == '5' or atten.tag == '7' or atten.tag == '9' %}
+                    <td style="color: green">成功</td>
+                {% else %}
+                    <td style="color: red">失败</td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>WiFi指纹</td>
+                {% if atten.tag == '2' or atten.tag == '5' or atten.tag == '6' or atten.tag == '9' %}
+                    <td style="color: green">成功</td>
+                {% else %}
+                    <td style="color: red">失败</td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>信号强度值</td>
+                <td>{{ atten.dbm }}dBm</td>
+            </tr>
+            <tr>
+                <td>申诉理由</td>
+                <td>{{ compl.complain_text }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+    <form action="/success_complain/" method="post">
+        {% csrf_token %}
+        <input type="text" name="attendance_id" id="attendance_id" value="{{ atten.att.attendance_id }}"
+               style="display: none;"/>
+        <input type="text" name="student_code" id="student_code" value="{{ stu.studentNum }}"
+               style="display: none;"/>
+        <button type="submit">接受申诉</button>
+    </form>
+    <form action="/fail_complain/" method="post">
+        {% csrf_token %}
+        <input type="text" name="attendance_id" id="attendance_id" value="{{ atten.att.attendance_id }}"
+               style="display: none;"/>
+        <input type="text" name="student_code" id="student_code" value="{{ stu.studentNum }}"
+               style="display: none;"/>
+        <textarea type="text" name="refuse_message" id="refuse_message" cols="30" rows="5" placeholder="拒绝申诉理由，最多64个字"></textarea>
+        <button type="submit">拒绝申诉</button>
+    </form>
+
+
+
+    {#    <img src="{{ stu.img2|get_img_path }}" alt="学生人脸2" width="30%">#}
+    {#    <img src="{{ stu.img3|get_img_path }}" alt="学生人脸3" width="30%">#}
+    {#    <img src="{{ stu.img4|get_img_path }}" alt="学生人脸4" width="30%">#}
+    {#    <img src="{{ stu.img5|get_img_path }}" alt="学生人脸5" width="30%">#}
+    {##}
+    {#    <img src="{{ atten.img2|get_img_path }}" alt="考勤人脸2" width="30%">#}
+    {#    <img src="{{ atten.img3|get_img_path }}" alt="考勤人脸3" width="30%">#}
 
 
 {% endblock content %}
