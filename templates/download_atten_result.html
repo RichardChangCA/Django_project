@@ -1,0 +1,11 @@
+{% extends 'base_teacher.html' %}
+{% block content %}
+    <h1 class="page-header">下载考勤结果
+    <form method="post" action="/teacher_manage_atten/" class="pull-right">
+            {% csrf_token %}
+            <input type="text" name="courseNum" id="courseNum"
+                   value="{{ courseNum }}" style="display: none;">
+            <button type="submit" class="btn btn-default">返回上层</button>
+        </form></h1>
+    <a href="{{ url }}">.xls文件下载</a>
+{% endblock content %}

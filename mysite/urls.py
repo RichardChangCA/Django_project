@@ -95,6 +95,7 @@ urlpatterns = [
     url(r'^success_complain/', views.success_complain),
     url(r'^fail_complain/', views.fail_complain),
     url(r'^check_complain_result/', views.check_complain_result),
+    url(r'^export_atten_results/', views.export_atten_results),
 
 ]
 

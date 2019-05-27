@@ -6,12 +6,13 @@
         <thead>
         <tr>
             <th>考勤状态</th>
-            <th>开始时间</th>
-            <th>结束时间</th>
+            <th>考勤开始时间</th>
+            <th>考勤结束时间</th>
             <th>活体检测</th>
             <th>人脸识别</th>
             <th>WiFi指纹</th>
             <th>学生信息</th>
+            <th>结果导出</th>
             <th>操作</th>
         </tr>
         </thead>
@@ -75,6 +76,18 @@
                         <button type="submit">查看</button>
                     </form>
                 </td>
+                {% if i.attendance_tag == '9' %}
+                    <td>
+                        <form method="post" action="/export_atten_results/">
+                            {% csrf_token %}
+                            <input type="text" name="attendance_id" id="attendance_id"
+                                   value="{{ i.attendance_id }}" style="display: none;">
+                            <button type="submit">导出</button>
+                        </form>
+                    </td>
+                {% else %}
+                    <td></td>
+                {% endif %}
                 <td>
                     <form action="/delete_attendance/" method="post">
                         {% csrf_token %}

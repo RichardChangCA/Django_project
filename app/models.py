@@ -73,7 +73,7 @@ class AttendanceInfo(models.Model):
     teacher_id = models.ForeignKey('TeacherInfo', null=False, on_delete=models.CASCADE)
     attendance_start_time = models.DateTimeField(null=False)
     attendance_end_time = models.DateTimeField(null=True, default=None)
-    attendance_tag = models.CharField(null=False, max_length=1)  # 考勤标志， 1为考勤中，0为考勤结束，...
+    attendance_tag = models.CharField(null=False, max_length=1)  # 考勤标志， 1为考勤中，0为考勤结束，... 9为完成
 
 
 class attendance(models.Model):

@@ -21,6 +21,7 @@ from Crypto.Cipher import AES
 import base64
 import os
 import xlrd
+import xlwt
 import pytz
 import simplejson
 import time
@@ -2781,17 +2782,14 @@ def complain_process(request):
         # print(complain_words)
         att = AttendanceInfo.objects.filter(attendance_id=attendance_id)[0]
         complain.objects.create(stu=student_model, att=att, complain_text=complain_words)
+        attendance.objects.filter(stu=student_model, att=att).update(complain_tag='0')
         stu_atten_results = []
         atten_info_results = AttendanceInfo.objects.filter(course_id=att.course_id.courseNum,
                                                            teacher_id=att.teacher_id.teacherNum)
         for row in atten_info_results:
             stu_atten_results.append(attendance.objects.filter(stu=student_model, att=row.attendance_id)[0])
-        complain_results = []
-        complain_model = complain.objects.filter(stu=student_model)
-        for row in complain_model:
-            complain_results.append(row.att.attendance_id)
         return render(request, "stu_check_atten.html",
-                      {"stu_atten_results": stu_atten_results, "complain_results": complain_results})
+                      {"stu_atten_results": stu_atten_results})
 
     else:
         return redirect("/chosen_course/")
@@ -2819,9 +2817,10 @@ def teacher_check_complain(request):
         att = AttendanceInfo.objects.filter(attendance_id=attendance_id)[0]
         atten = attendance.objects.filter(stu=stu, att=att)[0]
         compl = complain.objects.filter(stu=stu, att=att)[0]
-        return render(request, "teacher_check_complain.html", {"atten": atten, "compl": compl, "stu":stu})
+        return render(request, "teacher_check_complain.html", {"atten": atten, "compl": compl, "stu": stu})
     else:
         return redirect("/deal_complain/")
+
 
 @is_teacher_login
 def success_complain(request):
@@ -2847,6 +2846,7 @@ def fail_complain(request):
         complain.objects.filter(stu=stu, att=att).update(complain_tag='1', return_text=refuse_message)
     return redirect("/deal_complain/")
 
+
 @is_login
 def check_complain_result(request):
     if request.method == 'POST':
@@ -2858,3 +2858,37 @@ def check_complain_result(request):
         return render(request, "check_complain_result.html", {"complain_result": complain_result})
     else:
         return redirect("/chosen_course/")
+
+
+@is_teacher_login
+def export_atten_results(request):
+    if request.method == 'POST':
+        # email = request.COOKIES["qwer"]
+        # teacher_model = TeacherInfo.objects.get(email=email)
+        attendance_id = request.POST.get("attendance_id")
+        att = AttendanceInfo.objects.filter(attendance_id=attendance_id)[0]
+        stu_atten = attendance.objects.filter(att=att)
+        workbook = xlwt.Workbook(encoding='utf-8')  # 新建工作簿
+        sheet1 = workbook.add_sheet("考勤结果")  # 新建sheet
+        sheet1.write(0, 0, "学号")  # 第1行第1列数据
+        sheet1.write(0, 1, "姓名")  # 第1行第2列数据
+        sheet1.write(0, 2, "签到")  # 第1行第3列数据
+        num = 1
+        for row in stu_atten:
+            sheet1.write(num, 0, row.stu.studentNum)
+            sheet1.write(num, 1, row.stu.username)
+            if row.tag == '9':
+                sheet1.write(num, 2, "出勤")
+            else:
+                sheet1.write(num, 2, "缺勤")
+            num += 1
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        media_path = os.path.join(BASE_DIR, "static")
+        uploads_path = os.path.join(media_path, "uploads")
+        file_name = att.course_id.courseName + "_" + attendance_id + ".xls"
+        final_path = os.path.join(uploads_path, file_name)
+        workbook.save(final_path)  # 保存
+        url = os.path.join("/static", "uploads", file_name)
+        return render(request, "download_atten_result.html", {"url": url, "courseNum": att.course_id.courseNum})
+    else:
+        return redirect("/teacher_manage_atten/")
