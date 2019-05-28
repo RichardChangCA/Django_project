@@ -10,14 +10,13 @@
     <h1 class="page-header">人脸上传---支持<b style="color: red">.jpg/.png/.bmp</b>格式---请一次性上传<b style="color: red">5</b>张人脸</h1>
     <form action="/face_upload/" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <input id="input-id" type="file" class="file" name="input-id" data-preview-file-type="text" multiple/>
+        <input id="input-id" type="file" class="file" name="input-id" data-preview-file-type="text" multiple data-allowed-file-extensions='["jpg","png","bmp"]'/>
 {#        <input type="file" name="input-id" id="input-id"/>#}
 {#    <button type="submit">提交</button>#}
     </form>
     <h1 style="color: red">{{ img_info }}</h1>
     <h3 style="color: red">注意：</h3>
-    <p>1.请先使用手机拍摄五张自己正脸图片，不要使用美颜等功能将原图片进行处理（需要无处理过的原始图片）</p>
-    <p>2.直接用手机点击此页面文件夹按钮进行上传，一次选中五张，若不能同时选中五张，则将图片导入电脑中进行上传（图片导入学校实验室电脑便捷方式，若学校电脑无QQ等工具可采取：可用自己邮箱发送图片给自己，手机上传，电脑下载）</p>
-    <p>3.上传按钮为↑，上传成功后会有提示，接着在"我的人脸"中显示上传的图片即为上传成功</p>
-    <p style="color: red">声明：上传数据均为实验用途，本人承诺将会保护学生图片数据以及信息防止泄露</p>
+    <p>1.请先使用手机拍摄五张自己正脸图片，不要使用美颜等功能将原始图片进行处理</p>
+    <p>2.直接用手机点击此页面文件夹按钮进行上传，一次选中五张，若不能同时选中五张，则将图片导入电脑中进行上传</p>
+    <p>3.上传成功后会有提示，接着在"我的人脸"中显示上传的图片即为上传成功</p>
 {% endblock content %}

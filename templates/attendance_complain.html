@@ -7,16 +7,24 @@
                    value="{{ att.course_id.courseNum }}" style="display: none;">
             <input type="text" name="teac_id" id="teac_id"
                    value="{{ att.teacher_id.teacherNum }}" style="display: none;">
-            <button type="submit">返回上页</button>
+            <button type="submit" class="btn btn-default">返回上页</button>
         </form>
     </h1>
-
     <form action="/complain_process/" method="post">
         {% csrf_token %}
-        <textarea name="complain_words" id="complain_words" cols="30" rows="5" placeholder="最多64个字"></textarea>
+        <textarea name="complain_words" id="complain_words" cols="30" rows="5" placeholder="最多64个字"
+                  maxlength="64"></textarea>
+        <span id="titleaddon">字数统计：0/64</span>
         <input type="text" name="attendance_id" id="attendance_id"
                value="{{ att.attendance_id }}" style="display: none;">
-        <button type="submit">提交</button>
-        <button type="reset">重置</button>
+        <br>
+        <button type="submit" class="btn btn-success">提交</button>
+        <button type="reset" class="btn btn-primary">重置</button>
     </form>
+
+    <script>
+        $('textarea[name="complain_words"]').bind('change blur keyup input', function () {
+            $('#titleaddon').text("字数统计：" + $(this).val().length + '/64');
+        });
+    </script>
 {% endblock content %}

@@ -1,15 +1,97 @@
-{% extends 'base_admin.html' %}
-{% block content %}
-    <h1 class="page-header">加密解密</h1>
-    <form action="/decode/" method="post" class="bs-example bs-example-form" id="decodeForm">
-        {% csrf_token %}
-        <input type="textfield" name="decode" id="decode" value="{{ decode }}" size="30" placeholder="原始密码" class="form-control"/>
-        <button type="submit" class="btn btn-info">↑解密/加密↓</button>
-        <br>
-        <input type="textfiled" name="code" id="code" value="{{ code }}" size="30" placeholder="加密密码" class="form-control"/>
-    </form>
+<!DOCTYPE html>
+<!-- saved from url=(0042)https://v3.bootcss.com/examples/dashboard/ -->
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-    <h3>功能介绍：</h3>
-    <p>此模块将用户输入的密码（原始密码）与数据库存储的密码（加密密码）进行转换</p>
-    <script src="/static/js/decode.js"></script>
-{% endblock content %}
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!--<link rel="icon" href="https://v3.bootcss.com/favicon.ico">-->
+
+    <title>人脸识别考勤管理系统</title>
+
+    <!-- Bootstrap core CSS -->
+    {#    <link href="/static/css/bootstrap.min.css" rel="stylesheet">#}
+    {#    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">#}
+    <!-- Custom styles for this template -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/manage.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/font-awesome.css">
+    <link rel="icon" type="image/png" sizes="96x96" href="/static/img/shi.png">
+    <link href="/static/css/fileinput.min.css" rel="stylesheet" media="all" type="text/css">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/piexif.min.js" type="text/javascript"></script>
+    <script src="/static/js/sortable.min.js" type="text/javascript"></script>
+    <script src="/static/js/purify.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="/static/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="/static/js/fileinput.min.js"></script>
+    <script src="/static/js/theme.js"></script>
+    <script src="/static/js/bootstrap-validator.min.js"></script>
+    <script src="/static/js/zh.js"></script>
+</head>
+
+<body style="background-image: url('/static/img/bg.jpg');
+background-repeat:no-repeat;background-size:100% 100%;background-attachment: fixed;">
+<h1 class="page-header">操作</h1>
+<table class="table">
+    <thead>
+    <tr>
+        <th>功能</th>
+        <th>操作</th>
+        <th>备注</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>提交学生用户人脸</td>
+        <td>
+            <form action="/add_UserInfo_img_2db/" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">提交</button>
+            </form>
+        </td>
+        <td>假设所有学生上传人脸</td>
+    </tr>
+
+    <tr>
+        <td>提交考勤演示数据</td>
+        <td>
+            <form action="/upload_atten_demo/" method="post" style="width: 50%">
+                {% csrf_token %}
+                <input type="text" id="teacher_id" name="teacher_id" placeholder="输入教师号" class="form-control"
+                       maxlength="8">
+                <input type="text" id="course_id" name="course_id" placeholder="输入课程号" class="form-control"
+                       maxlength="7">
+                <button type="submit" class="btn btn-primary">提交</button>
+            </form>
+        </td>
+        <td>假设所有学生完成打卡</td>
+    </tr>
+    </tbody>
+</table>
+
+<h3 style="color: red">{{ success }}</h3>
+
+<h1 class="page-header">加密解密</h1>
+<form action="/decode/" method="post" class="bs-example bs-example-form" id="decodeForm" style="width: 30%">
+    {% csrf_token %}
+    <input type="textfield" name="decode" id="decode" value="{{ decode }}" size="30" placeholder="原始密码"
+           class="form-control" maxlength="16"/>
+    <button type="submit" class="btn btn-info">↑解密/加密↓</button>
+    <br>
+    <input type="textfiled" name="code" id="code" value="{{ code }}" size="30" placeholder="加密密码" class="form-control"/>
+</form>
+
+<h3>功能介绍：</h3>
+<p>此模块将用户输入的密码（原始密码）与数据库存储的密码（加密密码）进行转换</p>
+<script src="/static/js/decode.js"></script>
+<script>
+    $('.nav-sidebar li').siblings().removeClass('active')
+    $('.nav-sidebar li').eq({% block sidebar %}{% endblock  %}).addClass('active')
+</script>
+</body>
+</html>

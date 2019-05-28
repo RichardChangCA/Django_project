@@ -19,7 +19,7 @@
                     <form action="/teacher_manage_atten/" method="post">
                         {% csrf_token %}
                         <input type="text" name="courseNum" id="courseNum" value="{{ i.course_id.courseNum }}" style="display: none;"/>
-                        <button type="submit">查看</button>
+                        <button type="submit" class="btn btn-info">查看</button>
                     </form>
                 </td>
             </tr>

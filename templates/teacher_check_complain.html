@@ -21,14 +21,16 @@
             </tr>
             <tr>
                 <td>学生长相</td>
-                <td><img src="{{ stu.img1|get_img_path }}" alt="学生人脸1" width="30%"/>
-                    <button id="stu_face" name="stu_face">下一张</button>
+                <td><img src="{{ stu.img1|get_img_path }}" alt="学生人脸1" width="30%" name="stu_face_img"
+                         id="stu_face_img"/>
+                    <button id="stu_face" name="stu_face" class="btn btn-default">下一张</button>
                 </td>
             </tr>
             <tr>
                 <td>考勤人脸</td>
-                <td><img src="{{ atten.img1|get_img_path }}" alt="考勤人脸1" width="30%"/>
-                    <button id="att_face" name="att_face">下一张</button>
+                <td><img src="{{ atten.img1|get_img_path }}" alt="考勤人脸1" width="30%" name="att_face_img"
+                         id="att_face_img"/>
+                    <button id="att_face" name="att_face" class="btn btn-default">下一张</button>
                 </td>
             </tr>
             <tr>
@@ -88,16 +90,20 @@
                style="display: none;"/>
         <input type="text" name="student_code" id="student_code" value="{{ stu.studentNum }}"
                style="display: none;"/>
-        <button type="submit">接受申诉</button>
+        <button type="submit" class="btn btn-success">接受申诉</button>
     </form>
+    <br>
     <form action="/fail_complain/" method="post">
         {% csrf_token %}
         <input type="text" name="attendance_id" id="attendance_id" value="{{ atten.att.attendance_id }}"
                style="display: none;"/>
         <input type="text" name="student_code" id="student_code" value="{{ stu.studentNum }}"
                style="display: none;"/>
-        <textarea type="text" name="refuse_message" id="refuse_message" cols="30" rows="5" placeholder="拒绝申诉理由，最多64个字"></textarea>
-        <button type="submit">拒绝申诉</button>
+        <textarea type="text" name="refuse_message" id="refuse_message" cols="30" rows="5" placeholder="拒绝申诉理由，最多64个字"
+                  maxlength="64"></textarea>
+        <span id="titleaddon">字数统计：0/64</span>
+        <br>
+        <button type="submit" class="btn btn-danger">拒绝申诉</button>
     </form>
 
 
@@ -110,5 +116,49 @@
     {#    <img src="{{ atten.img2|get_img_path }}" alt="考勤人脸2" width="30%">#}
     {#    <img src="{{ atten.img3|get_img_path }}" alt="考勤人脸3" width="30%">#}
 
+    <script>
+        $('textarea[name="refuse_message"]').bind('change blur keyup input', function () {
+            $('#titleaddon').text("字数统计：" + $(this).val().length + '/64');
+        });
 
+        $('#stu_face').click(function () {
+            $.ajax({
+                url: "/next_stu_face/",
+                type: 'POST',
+                data: {
+                    "stu":{{ stu.studentNum }},
+                    "face_path": $('#stu_face_img').attr('src')
+                },
+                dataType: 'text',
+                success: function (data) {   //提交成功后自动执行的处理函数，参数data就是服务器返回的数据。
+                    console.log(data.toString());
+                    $('#stu_face_img').attr('src', data.toString())
+                },
+                error: function (data, status, e) {  //提交失败自动执行的处理函数。
+                    console.error(e);
+                }
+            })
+        })
+
+        $('#att_face').click(function () {
+            $.ajax({
+                url: "/next_att_face/",
+                type: 'POST',
+                data: {
+                    "atten":{{ atten.att.attendance_id }},
+                    "stu":{{ stu.studentNum }},
+                    "face_path": $('#att_face_img').attr('src')
+                },
+                dataType: 'text',
+                success: function (data) {   //提交成功后自动执行的处理函数，参数data就是服务器返回的数据。
+                    console.log(data.toString());
+                    $('#att_face_img').attr('src', data.toString())
+                },
+                error: function (data, status, e) {  //提交失败自动执行的处理函数。
+                    console.error(e);
+                }
+            })
+        })
+
+    </script>
 {% endblock content %}

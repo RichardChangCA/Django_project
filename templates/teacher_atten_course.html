@@ -38,7 +38,7 @@
                                 {% csrf_token %}
                                 <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
                                        style="display: none;"/>
-                                <button type="submit">检测</button>
+                                <button type="submit" class="btn btn-default">检测</button>
                             </form>
                         </td>
                     {% endif %}
@@ -50,7 +50,7 @@
                                 {% csrf_token %}
                                 <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
                                        style="display: none;"/>
-                                <button type="submit">识别</button>
+                                <button type="submit" class="btn btn-default">识别</button>
                             </form>
                         </td>
                     {% endif %}
@@ -62,18 +62,18 @@
                                 {% csrf_token %}
                                 <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
                                        style="display: none;"/>
-                                <button type="submit">聚类</button>
+                                <button type="submit" class="btn btn-default">聚类</button>
                             </form>
                         </td>
                     {% endif %}
                 {% endif %}
 
                 <td>
-                    <form action="/teacher_atten_course/" method="post" target="_blank">
+                    <form action="/teacher_atten_course/" method="post">
                         {% csrf_token %}
                         <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
                                style="display: none;"/>
-                        <button type="submit">查看</button>
+                        <button type="submit" class="btn btn-info">查看</button>
                     </form>
                 </td>
                 {% if i.attendance_tag == '9' %}
@@ -82,7 +82,7 @@
                             {% csrf_token %}
                             <input type="text" name="attendance_id" id="attendance_id"
                                    value="{{ i.attendance_id }}" style="display: none;">
-                            <button type="submit">导出</button>
+                            <button type="submit" class="btn btn-warning">导出</button>
                         </form>
                     </td>
                 {% else %}
@@ -93,7 +93,7 @@
                         {% csrf_token %}
                         <input type="text" name="attendance_id" id="attendance_id" value="{{ i.attendance_id }}"
                                style="display: none;"/>
-                        <button type="submit">删除</button>
+                        <button type="submit" class="btn btn-danger">删除</button>
                     </form>
                 </td>
             </tr>

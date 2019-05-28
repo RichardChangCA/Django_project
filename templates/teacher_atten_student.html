@@ -1,7 +1,13 @@
 {% extends 'base_teacher.html' %}
 {% block content %}
-    <h1 class="page-header">考勤管理</h1>
-
+        <h1 class="page-header">考勤管理
+            <form action="/teacher_manage_atten/" method="post" class="pull-right">
+                {% csrf_token %}
+                <input type="text" name="courseNum" id="courseNum" value="{{ cour_num }}"
+                       style="display: none;"/>
+                <button type="submit" class="btn btn-info">返回上层</button>
+            </form>
+        </h1>
     <table class="table table-striped">
         <thead>
         <tr>

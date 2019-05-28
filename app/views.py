@@ -363,7 +363,6 @@ def forget_password(request):
         return render(request, 'forget_password.html')
 
 
-@is_admin_login
 def decode(request):
     if request.method == 'POST':
         decode = request.POST.get("decode")
@@ -427,6 +426,54 @@ def course_verify(request):
             return HttpResponse(json.dumps(ret))
     else:
         return redirect("/create_course/")
+
+
+@csrf_exempt
+def next_stu_face(request):
+    if request.method == 'POST':
+        if request.is_ajax():
+            stu = request.POST.get('stu')
+            face_path = request.POST.get('face_path')
+            face_name = face_path.split("/")[-1]
+            # print("face_name", face_name)
+            stu_model = UserInfo.objects.filter(studentNum=stu)[0]
+            if (face_name == stu_model.img1.split("/")[-1]):
+                next_img = imgSplit(stu_model.img2)
+            elif (face_name == stu_model.img2.split("/")[-1]):
+                next_img = imgSplit(stu_model.img3)
+            elif (face_name == stu_model.img3.split("/")[-1]):
+                next_img = imgSplit(stu_model.img4)
+            elif (face_name == stu_model.img4.split("/")[-1]):
+                next_img = imgSplit(stu_model.img5)
+            else:
+                next_img = imgSplit(stu_model.img1)
+            return HttpResponse(next_img)
+    else:
+        return redirect('/deal_complain/')
+
+
+@csrf_exempt
+def next_att_face(request):
+    if request.method == 'POST':
+        if request.is_ajax():
+            stu = request.POST.get('stu')
+            stu_model = UserInfo.objects.filter(studentNum=stu)[0]
+            attendance_id = request.POST.get('atten')
+            atten_model = AttendanceInfo.objects.filter(attendance_id=attendance_id)[0]
+            att_model = attendance.objects.filter(stu=stu_model, att=atten_model)[0]
+            face_path = request.POST.get('face_path')
+            face_name = face_path.split("/")[-1]
+            # print("face_name", face_name)
+
+            if (face_name == att_model.img1.split("/")[-1]):
+                next_img = imgSplit(att_model.img2)
+            elif (face_name == att_model.img2.split("/")[-1]):
+                next_img = imgSplit(att_model.img3)
+            else:
+                next_img = imgSplit(att_model.img1)
+            return HttpResponse(next_img)
+    else:
+        return redirect('/deal_complain/')
 
 
 @is_login
@@ -578,17 +625,30 @@ def imgSplit(img):
 def face_gallery(request):
     email = request.COOKIES["qwer"]
     mymodel = UserInfo.objects.get(email=email)
-    img1 = imgSplit(mymodel.img1)
-    img1_name = img1.split("/")[-1]
-    print(img1_name)
-    img2 = imgSplit(mymodel.img2)
-    img2_name = img2.split("/")[-1]
-    img3 = imgSplit(mymodel.img3)
-    img3_name = img3.split("/")[-1]
-    img4 = imgSplit(mymodel.img4)
-    img4_name = img4.split("/")[-1]
-    img5 = imgSplit(mymodel.img5)
-    img5_name = img5.split("/")[-1]
+    print("mymodel.img1", mymodel.img1)
+    if mymodel.img1 == None:
+        img1 = None
+        img2 = None
+        img3 = None
+        img4 = None
+        img5 = None
+        img1_name = "暂无人脸"
+        img2_name = "暂无人脸"
+        img3_name = "暂无人脸"
+        img4_name = "暂无人脸"
+        img5_name = "暂无人脸"
+    else:
+        img1 = imgSplit(mymodel.img1)
+        img1_name = img1.split("/")[-1]
+        print(img1_name)
+        img2 = imgSplit(mymodel.img2)
+        img2_name = img2.split("/")[-1]
+        img3 = imgSplit(mymodel.img3)
+        img3_name = img3.split("/")[-1]
+        img4 = imgSplit(mymodel.img4)
+        img4_name = img4.split("/")[-1]
+        img5 = imgSplit(mymodel.img5)
+        img5_name = img5.split("/")[-1]
     return render(request, "face_gallery.html",
                   {"img1": img1, "img2": img2, "img3": img3, "img4": img4, "img5": img5, "img1_name": img1_name,
                    "img2_name": img2_name, "img3_name": img3_name, "img4_name": img4_name, "img5_name": img5_name})
@@ -1253,7 +1313,8 @@ def teacher_atten_course(request):
     if request.method == 'POST':
         attendance_id = request.POST.get("attendance_id")
         atten_info = attendance.objects.filter(att_id=attendance_id)
-        return render(request, "teacher_atten_student.html", {"atten_info": atten_info})
+        cour_num = atten_info[0].att.course_id.courseNum
+        return render(request, "teacher_atten_student.html", {"atten_info": atten_info, "cour_num": cour_num})
     else:
         courses = Teacher2Course.objects.filter(teacher_id=teacherNum)
         print(courses)
@@ -2127,7 +2188,7 @@ def face_recognition_cnnLayer(x, faces_number, keep_prob_5, keep_prob_75):
 # 输出层个数根据标签决定
 def face_recognition_cnnTrain(train_x, train_y, test_x, test_y, TIMESTAMP, num_batch, x, y_, keep_prob_5, keep_prob_75,
                               inc_v1,
-                              batch_size, faces_number):
+                              batch_size, faces_number, teacherNum, courseNum):
     tag = 0  # 结束标志
     out = face_recognition_cnnLayer(x, faces_number, keep_prob_5, keep_prob_75)
 
@@ -2147,6 +2208,8 @@ def face_recognition_cnnTrain(train_x, train_y, test_x, test_y, TIMESTAMP, num_b
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     media_path = os.path.join(BASE_DIR, "static")
     tmp_dir = os.path.join(media_path, "tmp")
+    tmp_dir = os.path.join(tmp_dir, teacherNum)
+    tmp_dir = os.path.join(tmp_dir, courseNum)
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     train_dir = os.path.join(tmp_dir, "train")
@@ -2211,6 +2274,7 @@ def train(request):
         courseNum = request.POST.get("courseNum")
         email = request.COOKIES["qwer"]
         teacher_model = TeacherInfo.objects.get(email=email)
+        teacherNum = teacher_model.teacherNum
         course_model = CourseInfo.objects.get(courseNum=courseNum)
         choose_course_model = choose_course.objects.filter(cour=course_model, teac=teacher_model)
 
@@ -2356,7 +2420,7 @@ def train(request):
         face_recognition_cnnTrain(train_x, train_y, test_x, test_y, TIMESTAMP, num_batch, x, y_, keep_prob_5,
                                   keep_prob_75, inc_v1,
                                   batch_size,
-                                  faces_number)
+                                  faces_number, teacherNum, courseNum)
         # for row in choose_course_model:
         #     # row.stu
 
@@ -2567,12 +2631,16 @@ def face_recognition_students(request):
     if request.method == 'POST':
         attendance_id = request.POST.get("attendance_id")
         atten_info = attendance.objects.filter(att=attendance_id)
+        teacherNum = atten_info[0].att.teacher_id.teacherNum
+        courseNum = atten_info[0].att.course_id.courseNum
 
         size = 64
 
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         media_path = os.path.join(BASE_DIR, "static")
         tmp_dir = os.path.join(media_path, "tmp")
+        tmp_dir = os.path.join(tmp_dir, teacherNum)
+        tmp_dir = os.path.join(tmp_dir, courseNum)
         json_path = tmp_dir + '/dict_match.json'
 
         with open(json_path, 'r') as load_f:
@@ -2682,6 +2750,39 @@ def manage_student_account(request):
     if request.method == 'POST':
         student_code = request.POST.get('student_code')
         UserInfo.objects.filter(studentNum=student_code).delete()
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        media_path = os.path.join(BASE_DIR, "static")
+        train_set_path = os.path.join(media_path, "train_set")
+        processed_train_set_path = os.path.join(media_path, "processed_train_set")
+        upload_face_from_android_path = os.path.join(media_path, "upload_face_from_android")
+
+        train_set_path = os.path.join(train_set_path, student_code)
+        processed_train_set_path = os.path.join(processed_train_set_path, student_code)
+        upload_face_from_android_path = os.path.join(upload_face_from_android_path, student_code)
+
+        if os.path.exists(train_set_path):
+            deldir = os.listdir(train_set_path)
+            for file in deldir:
+                filePath = os.path.join(train_set_path, file)
+                if os.path.isfile(filePath):
+                    os.remove(filePath)
+            os.rmdir(train_set_path)
+
+        if os.path.exists(processed_train_set_path):
+            deldir = os.listdir(processed_train_set_path)
+            for file in deldir:
+                filePath = os.path.join(processed_train_set_path, file)
+                if os.path.isfile(filePath):
+                    os.remove(filePath)
+            os.rmdir(processed_train_set_path)
+
+        if os.path.exists(upload_face_from_android_path):
+            deldir = os.listdir(upload_face_from_android_path)
+            for file in deldir:
+                filePath = os.path.join(upload_face_from_android_path, file)
+                if os.path.isfile(filePath):
+                    os.remove(filePath)
+            os.rmdir(upload_face_from_android_path)
     else:
         pass
     students = UserInfo.objects.filter()
