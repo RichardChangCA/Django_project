@@ -8,7 +8,8 @@
             <th>姓名</th>
             <th>电话</th>
             <th>邮箱</th>
-            <th>操作</th>
+            <th>人脸预处理</th>
+            <th>账号注销</th>
         </tr>
         </thead>
         <tbody>
@@ -18,6 +19,14 @@
                 <td>{{ i.username }}</td>
                 <td>{{ i.phone }}</td>
                 <td>{{ i.email }}</td>
+                <td>
+                    <form action="/process_single_stu_face/" method="post">
+                        {% csrf_token %}
+                        <input type="text" name="student_code" id="student_code" value="{{ i.studentNum }}"
+                               style="display: none;"/>
+                        <button type="submit" class="btn btn-default">处理</button>
+                    </form>
+                </td>
                 <td>
                     <form action="/manage_student_account/" method="post">
                         {% csrf_token %}

@@ -12,29 +12,44 @@
         </thead>
         <tbody>
         <tr>
-            <td>提交学生用户数据</td>
+            <td>导入学生用户账号</td>
             <td><a href="/static/download_models/UserInfo.xls">下载学生用户数据模板</a></td>
             <td>
                 <form action="/add_UserInfo_2db/" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <input type="file" name="file_name" id="file_name" class="file" data-show-preview="false" data-allowed-file-extensions='["xls"]'/>
-                    <button type="submit" class="btn btn-primary">提交.xls文件</button>
+                    <input type="file" name="file_name" id="file_name" class="file" data-show-preview="false"
+                           data-allowed-file-extensions='["xls"]'/>
+{#                    <button type="submit" class="btn btn-primary">提交.xls文件</button>#}
                 </form>
             </td>
         </tr>
         <tr>
-            <td>创建教师用户数据</td>
+            <td>导入教师用户账号</td>
             <td><a href="/static/download_models/TeacherInfo.xls">下载教师用户数据模板</a></td>
             <td>
                 <form action="/create_two_teachers/" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <input type="file" name="file_name" id="file_name" class="file" data-show-preview="false" data-allowed-file-extensions='["xls"]'/>
-                    <button type="submit" class="btn btn-primary">提交.xls文件</button>
+                    <input type="file" name="file_name" id="file_name" class="file" data-show-preview="false"
+                           data-allowed-file-extensions='["xls"]'/>
+{#                    <button type="submit" class="btn btn-primary">提交.xls文件</button>#}
                 </form>
             </td>
         </tr>
+
+
         <tr>
-            <td>预处理防伪图片集</td>
+            <td>预处理学生人脸集</td>
+            <td><a href=""></a></td>
+            <td>
+                <form action="/processed_stu_face/" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">处理</button>
+                </form>
+            </td>
+        </tr>
+
+        <tr>
+            <td>预处理真假人脸集</td>
             <td><a href=""></a></td>
             <td>
                 <form action="/anti_proof_dataset/" method="post">
@@ -44,14 +59,41 @@
             </td>
         </tr>
         <tr>
-            <td>照片防伪神经训练</td>
+            <td>活体检测模型训练</td>
             <td><a href=""></a></td>
             <td>
-{#                action="/anti_proof_train/"#}
-{#                http://39.98.169.35:6006/#scalars#}
+                {#                action="/anti_proof_train/"#}
+                {#                http://39.98.169.35:6006/#scalars#}
                 <form action="/anti_proof_train/" method="post">
                     {% csrf_token %}
-                    <button type="submit" onclick="tensorboard_open()" class="btn btn-primary">处理</button>
+                    <button type="submit" onclick="tensorboard_open()" class="btn btn-primary">开始</button>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <td>修改管理员密码</td>
+            <td><a href=""></a></td>
+            <td>
+                <form action="/change_admin_password/" method="post" id="defaultForm"
+                      class="form-signin form-horizontal" role="form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="password" class="col-sm-2 control-label">密码：</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" type="text" name="password" id="password" placeholder="输入密码"/>
+                        </div>
+
+                    </div>
+                    <div class="form-group" id="repassword_div">
+                        <label for="repassword" class="col-sm-2 control-label">确认密码：</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" type="text" name="repassword" id="repassword"
+                                   placeholder="重复输入密码"/>
+                        </div>
+                    </div>
+
+
+                    <button type="submit" class="btn btn-success">提交</button>
                 </form>
             </td>
         </tr>
@@ -62,9 +104,10 @@
     <h3 style="color: red">{{ success }}</h3>
 
     <script language="JavaScript" type="text/javascript">
-    function tensorboard_open(){
-        window.open("http://39.100.45.7:6006/#scalars");
-    }
+        function tensorboard_open() {
+            window.open("http://39.100.45.7:6006/#scalars");
+        }
     </script>
+    <script src="/static/js/change_admin_password.js"></script>
 
 {% endblock content %}

@@ -1,5 +1,5 @@
 $(function () {/* 文档加载，执行一个函数*/
-    console.log("verify_decode_tag_log")
+    console.log("verify_decode_tag_log");
     $('#decodeForm')
         .bootstrapValidator({
             message: 'This value is not valid',

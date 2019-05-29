@@ -36,7 +36,7 @@
 
 <body style="background-image: url('/static/img/bg.jpg');
 background-repeat:no-repeat;background-size:100% 100%;background-attachment: fixed;">
-<h1 class="page-header">操作</h1>
+<h1 class="page-header">演示操作</h1>
 <table class="table">
     <thead>
     <tr>
@@ -88,7 +88,7 @@ background-repeat:no-repeat;background-size:100% 100%;background-attachment: fix
 
 <h3>功能介绍：</h3>
 <p>此模块将用户输入的密码（原始密码）与数据库存储的密码（加密密码）进行转换</p>
-<script src="/static/js/decode.js"></script>
+{#<script src="/static/js/decode.js"></script>#}
 <script>
     $('.nav-sidebar li').siblings().removeClass('active')
     $('.nav-sidebar li').eq({% block sidebar %}{% endblock  %}).addClass('active')

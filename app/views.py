@@ -157,6 +157,25 @@ def personal_details(request):
                        "email": user_email})
 
 
+@is_admin_login
+def change_admin_password(request):
+    if request.method == 'POST':
+        email = request.COOKIES["qwer"]
+        pwd = request.POST.get('password')
+        # print(stu_num, username, email, pwd)
+        secret_key = "QWqw12!@QWqw12!@"
+        cipher = AES.new(secret_key, AES.MODE_ECB)  # never use ECB in strong systems obviously
+        if len(pwd) < 16:  # 密码长度为6-16之间
+            pwd += " " * (16 - len(pwd))
+        pwd = base64.b64encode(cipher.encrypt(pwd))
+        pwd = bytes.decode(pwd)
+
+        AdminInfo.objects.filter(email=email).update(password=pwd)
+        return HttpResponse("OK")
+    else:
+        return redirect("/operation/")
+
+
 @is_teacher_login
 def teacher_details(request):
     if request.method == 'POST':
@@ -365,9 +384,11 @@ def forget_password(request):
 
 def decode(request):
     if request.method == 'POST':
+        print("decode_1")
         decode = request.POST.get("decode")
         code = request.POST.get("code")
         if decode is not "":
+            print("decode_2")
             secret_key = "QWqw12!@QWqw12!@"
             cipher = AES.new(secret_key, AES.MODE_ECB)  # never use ECB in strong systems obviously
             if len(decode) < 16:  # 密码长度为6-16之间
@@ -379,6 +400,7 @@ def decode(request):
             decode = decode.strip(" ")
             return render(request, "decode.html", {"code": code, "decode": decode})
         elif code is not "":
+            print("decode_3")
             secret_key = "QWqw12!@QWqw12!@"  # 密钥
             cipher = AES.new(secret_key, AES.MODE_ECB)  # never use ECB in strong systems obviously
             decode = cipher.decrypt(base64.b64decode(str.encode(code)))
@@ -386,8 +408,10 @@ def decode(request):
             decode = decode.strip(" ")  # 正文
             return render(request, "decode.html", {"code": code, "decode": decode})
         else:
+            print("decode_4")
             return render(request, "decode.html", {"code": "", "decode": ""})
     else:
+        print("decode_5")
         return render(request, "decode.html", {"code": "", "decode": ""})
 
 
@@ -1078,11 +1102,24 @@ def create_course(request):
         b.save()
         return redirect("/create_course/")
     else:
+        total_map = {}
+        finish_map = {}
         courses = Teacher2Course.objects.filter(teacher_id=teacherNum)
-        print(courses)
         for i in courses:
-            print(i.course_id.courseNum)
-        return render(request, "create_course.html", {"courses": courses, "email": email})
+            stus = choose_course.objects.filter(teac=teacher_model, cour=i.course_id)
+            stu_num = stus.__len__()
+            cour_num = i.course_id.courseNum
+            total_map[cour_num] = stu_num
+            finish_map[cour_num] = 0
+            for j in stus:
+                if j.stu.img1 == None:
+                    continue
+                else:
+                    finish_map[cour_num] += 1
+        print(total_map)
+        print(finish_map)
+        return render(request, "create_course.html",
+                      {"courses": courses, "email": email, "total_map": total_map, "finish_map": finish_map})
 
 
 @is_admin_login
@@ -1139,7 +1176,6 @@ def add_UserInfo_2db(request):
         return redirect("/operation/")
 
 
-@is_admin_login
 def add_UserInfo_img_2db(request):
     if request.method == 'POST':
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -1164,9 +1200,9 @@ def add_UserInfo_img_2db(request):
             print(img1, img2, img3, img4, img5)
             UserInfo.objects.filter(studentNum=row.studentNum).update(img1=img1, img2=img2, img3=img3, img4=img4,
                                                                       img5=img5)
-        return render(request, "operation.html", {"success": "提交学生用户人脸成功"})
+        return render(request, "decode.html", {"success": "提交学生用户人脸成功"})
     else:
-        return redirect("/operation/")
+        return redirect("/decode/")
 
 
 @is_teacher_login
@@ -1314,7 +1350,38 @@ def teacher_atten_course(request):
         attendance_id = request.POST.get("attendance_id")
         atten_info = attendance.objects.filter(att_id=attendance_id)
         cour_num = atten_info[0].att.course_id.courseNum
-        return render(request, "teacher_atten_student.html", {"atten_info": atten_info, "cour_num": cour_num})
+
+        stu_num = atten_info.__len__()
+        print("stu_num", stu_num)
+        stu_atten_num = 0  # 出勤学生人数
+        face_recognition = 0  # 此项考勤成功的人数
+        anti_spoof = 0
+        wifi_finger = 0
+        for row in atten_info:
+            if row.tag == '9':
+                stu_atten_num += 1
+                face_recognition += 1
+                anti_spoof += 1
+                wifi_finger += 1
+            elif row.tag == '2':
+                wifi_finger += 1
+            elif row.tag == '3':
+                anti_spoof += 1
+            elif row.tag == '4':
+                face_recognition += 1
+            elif row.tag == '5':
+                anti_spoof += 1
+                wifi_finger += 1
+            elif row.tag == '6':
+                face_recognition += 1
+                wifi_finger += 1
+            elif row.tag == '7':
+                anti_spoof += 1
+                face_recognition += 1
+        return render(request, "teacher_atten_student.html",
+                      {"atten_info": atten_info, "cour_num": cour_num, "stu_atten_num": stu_atten_num,
+                       "face_recognition": face_recognition, "wifi_finger": wifi_finger, "anti_spoof": anti_spoof,
+                       "stu_num": stu_num})
     else:
         courses = Teacher2Course.objects.filter(teacher_id=teacherNum)
         print(courses)
@@ -1377,7 +1444,6 @@ def stu_upload(request):
         return redirect('/check/')
 
 
-@is_admin_login
 def upload_atten_demo(request):
     if request.method == 'POST':
         teacher_id = request.POST.get("teacher_id")
@@ -1418,9 +1484,9 @@ def upload_atten_demo(request):
 
             a.save()
             # row.stu.studentNum
-        return render(request, "operation.html", {"success": "提交考勤演示数据成功"})
+        return render(request, "decode.html", {"success": "提交考勤演示数据成功"})
     else:
-        return redirect("/operation/")
+        return redirect("/decode/")
 
 
 # time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
@@ -1811,7 +1877,7 @@ def anti_proof_train(request):
         cnnTrain(num_batch, x, y_, keep_prob_5, keep_prob_75, inc_v1, TIMESTAMP, train_x, test_x, train_y, test_y,
                  batch_size, faces_number)
         # ssh.close()
-        return render(request, "operation.html", {"success": "照片防伪神经训练成功"})
+        return render(request, "operation.html", {"success": "活体检测模型训练成功"})
     else:
         return redirect("/operation/")
 
@@ -2069,10 +2135,19 @@ def random_name():
     return file_name
 
 
-def readData(path, imgs, labs):
+def readData(path, imgs, labs, teacherNum, courseNum, choose_course_model):
     dict_match = {}
     num = 0
     for file_dir_name in os.listdir(path):
+
+        continue_tag = 0
+        for stus in choose_course_model:
+            if file_dir_name.split("/")[-1] == stus.stu.studentNum:
+                continue_tag = 1
+                break
+        if continue_tag == 0:
+            continue
+
         next_files = path + '/' + file_dir_name  # 左斜杠linux与windows都兼容
 
         dict_match.setdefault(num, "0")
@@ -2106,6 +2181,14 @@ def readData(path, imgs, labs):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     media_path = os.path.join(BASE_DIR, "static")
     tmp_dir = os.path.join(media_path, "tmp")
+    if not os.path.exists(tmp_dir):
+        os.mkdir(tmp_dir)
+    tmp_dir = os.path.join(tmp_dir, teacherNum)
+    if not os.path.exists(tmp_dir):
+        os.mkdir(tmp_dir)
+    tmp_dir = os.path.join(tmp_dir, courseNum)
+    if not os.path.exists(tmp_dir):
+        os.mkdir(tmp_dir)
     json_path = tmp_dir + '/dict_match.json'
     with open(json_path, 'w') as json_file:
         json_file.write(json_str)
@@ -2208,13 +2291,20 @@ def face_recognition_cnnTrain(train_x, train_y, test_x, test_y, TIMESTAMP, num_b
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     media_path = os.path.join(BASE_DIR, "static")
     tmp_dir = os.path.join(media_path, "tmp")
+    if not os.path.exists(tmp_dir):
+        os.mkdir(tmp_dir)
     tmp_dir = os.path.join(tmp_dir, teacherNum)
+    if not os.path.exists(tmp_dir):
+        os.mkdir(tmp_dir)
     tmp_dir = os.path.join(tmp_dir, courseNum)
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     train_dir = os.path.join(tmp_dir, "train")
     test_dir = os.path.join(tmp_dir, "test")
-
+    if not os.path.exists(train_dir):
+        os.mkdir(train_dir)
+    if not os.path.exists(test_dir):
+        os.mkdir(test_dir)
     with tf.Session() as sess:
 
         sess.run(tf.global_variables_initializer())
@@ -2268,16 +2358,85 @@ def face_recognition_cnnTrain(train_x, train_y, test_x, test_y, TIMESTAMP, num_b
 
 # face_recognition_end
 
-@is_teacher_login
-def train(request):
-    if request.method == 'POST':
-        courseNum = request.POST.get("courseNum")
-        email = request.COOKIES["qwer"]
-        teacher_model = TeacherInfo.objects.get(email=email)
-        teacherNum = teacher_model.teacherNum
-        course_model = CourseInfo.objects.get(courseNum=courseNum)
-        choose_course_model = choose_course.objects.filter(cour=course_model, teac=teacher_model)
 
+@is_admin_login
+def process_single_stu_face(request):
+    if request.method == 'POST':
+        student_code = request.POST.get("student_code")
+        # 图片预处理，裁剪
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        media_path = os.path.join(BASE_DIR, "static")
+        input_dir = os.path.join(media_path, "train_set")
+        input_dir = os.path.join(input_dir, student_code)
+
+        if os.path.exists(input_dir):
+            pass
+        else:
+            return redirect("/manage_student_account/")
+
+        output_dir = os.path.join(media_path, "processed_train_set")
+        output_dir = os.path.join(output_dir, student_code)
+
+        if os.path.exists(output_dir):
+            output_dir_list = os.listdir(output_dir)
+            for file in output_dir_list:
+                file_next_path = os.path.join(output_dir, file)
+                print("file_next_path", file_next_path)
+                os.remove(file_next_path)
+            os.removedirs(output_dir)
+            # os.removedirs(output_dir)  # 里面文件夹都为空时才能删除成功
+        os.mkdir(output_dir)
+        size = 64
+        # 使用dlib自带的frontal_face_detector作为我们的特征提取器
+        detector = dlib.get_frontal_face_detector()
+
+        next_filenames = os.listdir(input_dir)
+
+        for filename in next_filenames:
+            if filename.endswith('.bmp') or filename.endswith('.BMP') or filename.endswith(
+                    '.PNG') or filename.endswith('.png') or filename.endswith('.JPG') or filename.endswith('.jpg'):
+                picture_name = os.path.basename(filename)  # 获取当前文件名
+                print('Being processed picture %s' % picture_name)
+                img_path = input_dir + '/' + filename
+                # 从文件读取图片
+                img = cv2.imread(img_path)
+                # 转为灰度图片
+                gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                # 使用detector进行人脸检测 dets为返回的结果
+                dets = detector(gray_img, 1)
+
+                # 使用enumerate 函数遍历序列中的元素以及它们的下标
+                # 下标i即为人脸序号
+                # left：人脸左边距离图片左边界的距离 ；right：人脸右边距离图片左边界的距离
+                # top：人脸上边距离图片上边界的距离 ；bottom：人脸下边距离图片上边界的距离
+                for i, d in enumerate(dets):
+                    x1 = d.top() if d.top() > 0 else 0
+                    y1 = d.bottom() if d.bottom() > 0 else 0
+                    x2 = d.left() if d.left() > 0 else 0
+                    y2 = d.right() if d.right() > 0 else 0
+                    # img[y:y+h,x:x+w]
+                    face = img[x1:y1, x2:y2]
+                    # 调整图片的尺寸
+                    face = cv2.resize(face, (size, size))
+                    # cv2.imshow('image', face)
+                    # 保存图片
+                    cv2.imwrite(output_dir + '/' + picture_name, face)
+
+        print("[INFO]end of processing - cut images")
+
+        # 图片预处理，扩数据集
+        data_dir_path = output_dir  # 读取/保存的文件路径
+        read_file_all(data_dir_path)
+        read_file_all_again(data_dir_path)
+
+        print("[INFO]end of processing - enlarge images")
+
+    return redirect("/manage_student_account/")
+
+
+@is_admin_login
+def processed_stu_face(request):
+    if request.method == 'POST':
         # 图片预处理，裁剪
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         media_path = os.path.join(BASE_DIR, "static")
@@ -2365,6 +2524,24 @@ def train(request):
         read_file_all_again(data_dir_path)
 
         print("[INFO]end of processing - enlarge images")
+        return render(request, "operation.html", {"success": "完成学生人脸预处理"})
+    else:
+        return redirect("/operation/")
+
+
+@is_teacher_login
+def train(request):
+    if request.method == 'POST':
+        courseNum = request.POST.get("courseNum")
+        email = request.COOKIES["qwer"]
+        teacher_model = TeacherInfo.objects.get(email=email)
+        teacherNum = teacher_model.teacherNum
+        course_model = CourseInfo.objects.get(courseNum=courseNum)
+        choose_course_model = choose_course.objects.filter(cour=course_model, teac=teacher_model)
+
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        media_path = os.path.join(BASE_DIR, "static")
+        output_dir = os.path.join(media_path, "processed_train_set")
 
         # 开始训练
         TIMESTAMP = "{0:%Y-%m-%dT%H-%M-%S/}".format(datetime.now())
@@ -2379,7 +2556,7 @@ def train(request):
 
         # readData(my_faces_path)
         # readData(other_faces_path)
-        imgs, labs = readData(face_path, imgs, labs)
+        imgs, labs = readData(face_path, imgs, labs, teacherNum, courseNum, choose_course_model)
 
         # 将图片数据与标签转换成数组
         imgs = np.array(imgs)
@@ -2854,8 +3031,11 @@ def stu_check_atten(request):
         teacher_id = request.POST.get("teac_id")
         stu_atten_results = []
         atten_info_results = AttendanceInfo.objects.filter(course_id=course_id, teacher_id=teacher_id)
-        for row in atten_info_results:
-            stu_atten_results.append(attendance.objects.filter(stu=student_model, att=row.attendance_id)[0])
+        if stu_atten_results == []:
+            pass
+        else:
+            for row in atten_info_results:
+                stu_atten_results.append(attendance.objects.filter(stu=student_model, att=row.attendance_id)[0])
         return render(request, "stu_check_atten.html",
                       {"stu_atten_results": stu_atten_results})
     else:

@@ -98,6 +98,9 @@ urlpatterns = [
     url(r'^export_atten_results/', views.export_atten_results),
     url(r'^next_stu_face/', views.next_stu_face),
     url(r'^next_att_face/', views.next_att_face),
+    url(r'^processed_stu_face/', views.processed_stu_face),
+    url(r'^process_single_stu_face/', views.process_single_stu_face),
+    url(r'^change_admin_password/', views.change_admin_password),
 
 ]
 
