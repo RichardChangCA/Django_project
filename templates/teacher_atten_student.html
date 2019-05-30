@@ -1,20 +1,133 @@
 {% extends 'base_teacher.html' %}
 {% block content %}
-        <h1 class="page-header">考勤管理
-            <form action="/teacher_manage_atten/" method="post" class="pull-right">
-                {% csrf_token %}
-                <input type="text" name="courseNum" id="courseNum" value="{{ cour_num }}"
-                       style="display: none;"/>
-                <button type="submit" class="btn btn-info">返回上层</button>
-            </form>
-        </h1>
+    <h1 class="page-header">考勤管理
+        <form action="/teacher_manage_atten/" method="post" class="pull-right">
+            {% csrf_token %}
+            <input type="text" name="courseNum" id="courseNum" value="{{ cour_num }}"
+                   style="display: none;"/>
+            <button type="submit" class="btn btn-info">返回上层</button>
+        </form>
+    </h1>
 
-    <p>stu_num:{{ stu_num }}</p>
-    <p>stu_atten_num:{{ stu_atten_num }}</p>
-    <p>face_recognition:{{ face_recognition }}</p>
-    <p>wifi_finger:{{ wifi_finger }}</p>
-    <p>anti_spoof:{{ anti_spoof }}</p>
+    <div id="container_1" style="min-width:400px;height:400px">
+        <script>
+            Highcharts.chart('container_1', {
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                },
+                title: {
+                    text: '总人数：' +{{ stu_num }}
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    name: '比例',
+                    colorByPoint: true,
+                    data: [{
+                        name: '出勤' + {{ stu_atten_num }} +'人',
+                        y: {{ stu_atten_num }},
+                        {#sliced: true,#}
+                        {#selected: true#}
+                    },
+                        {
+                            name: '缺勤' + {{ stu_absent_num }} +'人',
+                            y: {{ stu_absent_num }}
+                        }]
+                }]
+            });
+        </script>
+    </div>
+    <br>
+    <div id="container_2" style="
+		min-width: 400px;
+		height: 400px;">
+        <script>
+            Highcharts.chart('container_2', {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: '考勤失败学生中各项考勤指标'
+                },
+                subtitle: {
+                    text: null
+                },
+                legend: {
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    layout: 'vertical'
+                },
+                xAxis: {
+                    categories: ['人脸识别', '活体检测', 'WiFi指纹'],
+                    labels: {
+                        x: -10
+                    }
+                },
+                yAxis: {
+                    allowDecimals: false,
+                    title: {
+                        text: '人数'
+                    }
+                },
+                series: [{
+                    name: '成功',
+                    data: [{{ fail_face_recog_succ }}, {{ fail_anti_spoof_succ }}, {{ fail_wifi_finge_succ }}]
+                }, {
+                    name: '失败',
+                    data: [{{ fail_face_recog_fail }}, {{ fail_anti_spoof_fail }}, {{ fail_wifi_finge_fail }}]
+                }],
+                responsive: {
+                    rules: [{
+                        condition: {
+                            maxWidth: 500
+                        },
+                        chartOptions: {
+                            legend: {
+                                align: 'center',
+                                verticalAlign: 'bottom',
+                                layout: 'horizontal'
+                            },
+                            yAxis: {
+                                labels: {
+                                    align: 'left',
+                                    x: 0,
+                                    y: -5
+                                },
+                                title: {
+                                    text: null
+                                }
+                            },
+                            subtitle: {
+                                text: null
+                            },
+                            credits: {
+                                enabled: false
+                            }
+                        }
+                    }]
+                }
+            });
 
+        </script>
+    </div>
+    <br>
 
     <table class="table table-striped">
         <thead>

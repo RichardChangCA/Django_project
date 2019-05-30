@@ -1378,10 +1378,19 @@ def teacher_atten_course(request):
             elif row.tag == '7':
                 anti_spoof += 1
                 face_recognition += 1
+        stu_absent_num = stu_num - stu_atten_num
+        fail_face_recog_succ = face_recognition - stu_atten_num
+        fail_face_recog_fail = stu_absent_num - fail_face_recog_succ
+        fail_anti_spoof_succ = anti_spoof - stu_atten_num
+        fail_anti_spoof_fail = stu_absent_num - fail_anti_spoof_succ
+        fail_wifi_finge_succ = wifi_finger - stu_atten_num
+        fail_wifi_finge_fail = stu_absent_num - fail_wifi_finge_succ
         return render(request, "teacher_atten_student.html",
                       {"atten_info": atten_info, "cour_num": cour_num, "stu_atten_num": stu_atten_num,
-                       "face_recognition": face_recognition, "wifi_finger": wifi_finger, "anti_spoof": anti_spoof,
-                       "stu_num": stu_num})
+                       "fail_face_recog_succ": fail_face_recog_succ, "fail_face_recog_fail": fail_face_recog_fail,
+                       "fail_anti_spoof_succ": fail_anti_spoof_succ, "fail_anti_spoof_fail": fail_anti_spoof_fail,
+                       "fail_wifi_finge_succ": fail_wifi_finge_succ, "fail_wifi_finge_fail": fail_wifi_finge_fail,
+                       "stu_num": stu_num, "stu_absent_num": stu_absent_num})
     else:
         courses = Teacher2Course.objects.filter(teacher_id=teacherNum)
         print(courses)
@@ -3031,11 +3040,13 @@ def stu_check_atten(request):
         teacher_id = request.POST.get("teac_id")
         stu_atten_results = []
         atten_info_results = AttendanceInfo.objects.filter(course_id=course_id, teacher_id=teacher_id)
-        if stu_atten_results == []:
-            pass
-        else:
-            for row in atten_info_results:
-                stu_atten_results.append(attendance.objects.filter(stu=student_model, att=row.attendance_id)[0])
+        # if atten_info_results == []:
+        #     pass
+        # else:
+        #     for row in atten_info_results:
+        #         stu_atten_results.append(attendance.objects.filter(stu=student_model, att=row.attendance_id)[0])
+        for row in atten_info_results:
+            stu_atten_results.append(attendance.objects.filter(stu=student_model, att=row.attendance_id)[0])
         return render(request, "stu_check_atten.html",
                       {"stu_atten_results": stu_atten_results})
     else:
