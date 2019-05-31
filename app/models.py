@@ -2,8 +2,10 @@ from django.db import models
 from datetime import datetime
 from django.utils import timezone
 
+
 class AndroidUrl(models.Model):
     url = models.CharField(primary_key=True, max_length=32)
+
 
 class AdminInfo(models.Model):
     email = models.EmailField(primary_key=True, max_length=32)
@@ -86,9 +88,12 @@ class attendance(models.Model):
     # img1 = models.ImageField(upload_to="attendance_set/")
     # img2 = models.ImageField(upload_to="attendance_set/")
     # img3 = models.ImageField(upload_to="attendance_set/")
-    img1 = models.CharField(max_length=255, null=True, unique=True, default=None)
-    img2 = models.CharField(max_length=255, null=True, unique=True, default=None)
-    img3 = models.CharField(max_length=255, null=True, unique=True, default=None)
+    # img1 = models.CharField(max_length=255, null=True, unique=True, default=None)
+    # img2 = models.CharField(max_length=255, null=True, unique=True, default=None)
+    # img3 = models.CharField(max_length=255, null=True, unique=True, default=None)
+    img1 = models.CharField(max_length=255, null=True, default=None)
+    img2 = models.CharField(max_length=255, null=True, default=None)
+    img3 = models.CharField(max_length=255, null=True, default=None)
     finish_tag = models.CharField(null=False, max_length=1, default=0)  # 考勤完成状态
     complain_tag = models.CharField(null=False, max_length=1, default=2)  # 申诉标志 0等待申诉，1申诉完成，2未申诉
 

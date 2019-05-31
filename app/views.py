@@ -2402,9 +2402,11 @@ def process_single_stu_face(request):
         next_filenames = os.listdir(input_dir)
 
         for filename in next_filenames:
+            print("嘻嘻")
             if filename.endswith('.bmp') or filename.endswith('.BMP') or filename.endswith(
                     '.PNG') or filename.endswith('.png') or filename.endswith('.JPG') or filename.endswith('.jpg'):
                 picture_name = os.path.basename(filename)  # 获取当前文件名
+                print("filename",filename)
                 print('Being processed picture %s' % picture_name)
                 img_path = input_dir + '/' + filename
                 # 从文件读取图片
@@ -2429,6 +2431,7 @@ def process_single_stu_face(request):
                     face = cv2.resize(face, (size, size))
                     # cv2.imshow('image', face)
                     # 保存图片
+                    print("1")
                     cv2.imwrite(output_dir + '/' + picture_name, face)
 
         print("[INFO]end of processing - cut images")
