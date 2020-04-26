@@ -1,5 +1,7 @@
 # Django_project
-Django web with face recognition and attendance
+Bachelor Thesis Project
+
+Django Web with Face Recognition and Attendance System
 
 Android Application related to this project is shown at https://github.com/RichardChangCA/Android_project
 
